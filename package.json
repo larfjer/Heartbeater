@@ -1,0 +1,19 @@
+{
+  "name": "heartbeater",
+  "version": "1.0.0",
+  "description": "Heartbeater Electron App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.0.0"
+  },
+  "dependencies": {
+    "local-devices": "^4.0.0"
+  }
+}
