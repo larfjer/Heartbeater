@@ -210,6 +210,7 @@
 
       .md-table tbody tr {
         transition: background-color 0.2s ease;
+        cursor: pointer;
       }
 
       .md-table tbody tr:hover {
@@ -218,6 +219,78 @@
 
       .md-table tbody tr:last-child td {
         border-bottom: none;
+      }
+
+      .manufacturer-badge {
+        display: inline-block;
+        background-color: var(--md-sys-color-secondary);
+        color: var(--md-sys-color-surface);
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .details-row {
+        display: none;
+        background-color: var(--md-sys-color-surface-container-high);
+      }
+
+      .details-row.expanded {
+        display: table-row;
+      }
+
+      .details-cell {
+        padding: 24px;
+        padding-top: 0;
+      }
+
+      .details-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--md-sys-color-on-surface-variant);
+        text-transform: uppercase;
+        margin-bottom: 12px;
+        margin-top: 16px;
+      }
+
+      .details-title:first-child {
+        margin-top: 0;
+      }
+
+      .service-item {
+        background-color: var(--md-sys-color-surface-container);
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        font-size: 13px;
+        font-family: 'Roboto Mono', monospace;
+      }
+
+      .service-port {
+        color: var(--md-sys-color-primary);
+        font-weight: 500;
+      }
+
+      .service-name {
+        color: var(--md-sys-color-on-surface-variant);
+        margin-left: 8px;
+      }
+
+      .os-info {
+        background-color: var(--md-sys-color-surface-container);
+        padding: 12px;
+        border-radius: 6px;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 13px;
+      }
+
+      .expand-icon {
+        transition: transform 0.2s ease;
+      }
+
+      .expand-icon.expanded {
+        transform: rotate(180deg);
       }
 
       .device-name {
@@ -275,6 +348,97 @@
         margin: 0;
         font-size: 14px;
       }
+
+      .tabs {
+        display: flex;
+        border-bottom: 1px solid var(--md-sys-color-outline);
+        background-color: var(--md-sys-color-surface);
+      }
+
+      .tab {
+        flex: 1;
+        padding: 16px 24px;
+        text-align: center;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        color: var(--md-sys-color-on-surface-variant);
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        user-select: none;
+      }
+
+      .tab:hover {
+        background-color: var(--md-sys-color-surface-container);
+        color: var(--md-sys-color-on-surface);
+      }
+
+      .tab.active {
+        border-bottom-color: var(--md-sys-color-primary);
+        color: var(--md-sys-color-primary);
+        background-color: var(--md-sys-color-surface-container-high);
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .group-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+      }
+
+      .group-card {
+        background-color: var(--md-sys-color-surface-container);
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid var(--md-sys-color-outline);
+        transition: all 0.2s ease;
+      }
+
+      .group-card:hover {
+        background-color: var(--md-sys-color-surface-container-high);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      .group-card-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--md-sys-color-on-surface);
+        margin: 0 0 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .group-card-title .material-icons {
+        color: var(--md-sys-color-primary);
+        font-size: 24px;
+      }
+
+      .group-card-subtitle {
+        font-size: 12px;
+        color: var(--md-sys-color-on-surface-variant);
+        margin: 0;
+      }
+
+      .group-empty {
+        text-align: center;
+        padding: 48px 24px;
+        color: var(--md-sys-color-on-surface-variant);
+      }
+
+      .group-empty .material-icons {
+        font-size: 48px;
+        color: var(--md-sys-color-surface-variant);
+        margin-bottom: 16px;
+      }
     </style>
   </head>
   <body>
@@ -283,20 +447,44 @@
       <h1>Heartbeater</h1>
     </header>
 
-    <main class="container">
-      <div class="card">
-        <h2 class="card-title">Network Scanner</h2>
-        <p class="card-subtitle">Discover all devices connected to your local network</p>
-        
-        <button id="scanBtn" class="md-button">
-          <span class="material-icons">radar</span>
-          Scan Network
-        </button>
-        
-        <div id="status"></div>
+    <nav class="tabs">
+      <div class="tab active" data-tab="device-scan">
+        <span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 8px;">radar</span>
+        Device Scan
       </div>
-      
-      <div id="results"></div>
+      <div class="tab" data-tab="device-group">
+        <span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 8px;">group</span>
+        Device Group
+      </div>
+    </nav>
+
+    <main class="container">
+      <!-- Device Scan Tab -->
+      <div id="device-scan" class="tab-content active">
+        <div class="card">
+          <h2 class="card-title">Network Scanner</h2>
+          <p class="card-subtitle">Discover all devices connected to your local network</p>
+          
+          <button id="scanBtn" class="md-button">
+            <span class="material-icons">radar</span>
+            Scan Network
+          </button>
+          
+          <div id="status"></div>
+        </div>
+        
+        <div id="results"></div>
+      </div>
+
+      <!-- Device Group Tab -->
+      <div id="device-group" class="tab-content">
+        <div class="card">
+          <h2 class="card-title">Device Groups</h2>
+          <p class="card-subtitle">Organize and manage device groups</p>
+        </div>
+
+        <div id="groups-container"></div>
+      </div>
     </main>
 
     <script src="renderer.js"></script>

@@ -1,6 +1,11 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const localDevices = require('local-devices');
+const { lookupMac } = require('@network-utils/vendor-lookup');
+const { exec } = require('child_process');
+const { promisify } = require('util');
+
+const execAsync = promisify(exec);
 
 // Logger utility for VS Code output
 const log = {
@@ -17,6 +22,61 @@ const log = {
     console.log(`[${timestamp}] [DEBUG] ${message}`, ...args);
   },
 };
+
+// Enrich device with manufacturer info
+async function enrichDeviceWithManufacturer(device) {
+  try {
+    const vendor = await lookupMac(device.mac);
+    device.manufacturer = vendor || 'Unknown';
+  } catch (error) {
+    log.debug(`Failed to lookup MAC ${device.mac}:`, error.message);
+    device.manufacturer = 'Unknown';
+  }
+  return device;
+}
+
+// Get OS and service info via nmap
+async function scanDeviceDetails(ip) {
+  try {
+    log.debug(`Running nmap scan on ${ip}...`);
+    const { stdout } = await execAsync(`nmap -sV -O -T4 --max-os-tries 1 ${ip} 2>/dev/null || true`, {
+      timeout: 30000,
+    });
+
+    const details = {
+      os: 'Unknown',
+      services: [],
+    };
+
+    // Extract OS info
+    const osMatch = stdout.match(/OS details: (.+?)(?:\n|$)/);
+    if (osMatch) {
+      details.os = osMatch[1].trim();
+    }
+
+    // Extract running services
+    const serviceLines = stdout.match(/(\d+)\/\w+\s+open\s+(.+?)\s+(.+?)(?:\n|$)/g);
+    if (serviceLines) {
+      serviceLines.forEach((line) => {
+        const match = line.match(/(\d+)\/(\w+)\s+open\s+(.+?)\s+(.+?)(?:\n|$)/);
+        if (match) {
+          details.services.push({
+            port: match[1],
+            protocol: match[2],
+            service: match[3],
+            version: match[4],
+          });
+        }
+      });
+    }
+
+    log.debug(`Scan complete for ${ip}:`, details);
+    return details;
+  } catch (error) {
+    log.debug(`nmap scan failed for ${ip}:`, error.message);
+    return { os: 'Unknown', services: [] };
+  }
+}
 
 function createWindow() {
   log.info('Creating main window');
@@ -39,14 +99,44 @@ ipcMain.handle('scan-network', async () => {
   log.info('Network scan requested');
   try {
     log.debug('Starting local devices scan...');
-    const devices = await localDevices();
-    log.info(`Network scan complete. Found ${devices.length} device(s)`);
+    let devices = await localDevices();
+    log.info(`Found ${devices.length} device(s) on network`);
+
+    // Enrich with manufacturer info
+    log.debug('Enriching devices with manufacturer info...');
+    devices = await Promise.all(devices.map((d) => enrichDeviceWithManufacturer(d)));
+
+    // Optionally scan details for each device (this can take time)
+    // Uncomment below to enable nmap scanning for OS and services
+    // log.debug('Scanning device details (OS, services)...');
+    // devices = await Promise.all(
+    //   devices.map(async (device) => {
+    //     const details = await scanDeviceDetails(device.ip);
+    //     return { ...device, ...details };
+    //   })
+    // );
+
     devices.forEach((device, index) => {
-      log.debug(`  Device ${index + 1}: ${device.name || '(Unknown)'} - ${device.ip} - ${device.mac}`);
+      log.debug(
+        `  Device ${index + 1}: ${device.name || '(Unknown)'} - ${device.ip} - ${device.mac} - ${device.manufacturer}`
+      );
     });
+
     return { success: true, devices };
   } catch (error) {
     log.error('Network scan failed:', error.message);
+    return { success: false, error: error.message };
+  }
+});
+
+// Optional IPC handler for detailed device scanning
+ipcMain.handle('scan-device-details', async (event, ip) => {
+  log.info(`Detailed scan requested for ${ip}`);
+  try {
+    const details = await scanDeviceDetails(ip);
+    return { success: true, ...details };
+  } catch (error) {
+    log.error(`Detailed scan failed for ${ip}:`, error.message);
     return { success: false, error: error.message };
   }
 });

@@ -9,6 +9,10 @@ contextBridge.exposeInMainWorld('api', {
     console.log('[Preload] scanNetwork called, invoking IPC');
     return ipcRenderer.invoke('scan-network');
   },
+  scanDeviceDetails: (ip) => {
+    console.log('[Preload] scanDeviceDetails called for', ip);
+    return ipcRenderer.invoke('scan-device-details', ip);
+  },
 });
 
 console.log('[Preload] API exposed to renderer');
