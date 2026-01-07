@@ -7,6 +7,7 @@
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
+    "prepare": "husky install",
     "lint": "npm run lint:js && npm run lint:html",
     "lint:js": "eslint --ext .js .",
     "lint:html": "htmlhint index.html",
@@ -25,6 +26,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "htmlhint": "^1.8.0",
+    "husky": "^9.1.7",
     "prettier": "^3.7.4"
   },
   "dependencies": {
