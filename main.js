@@ -1,10 +1,15 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
-const path = require('path');
-const localDevices = require('local-devices');
-const { lookupMac } = require('@network-utils/vendor-lookup');
-const { exec } = require('child_process');
-const { promisify } = require('util');
+import { app, BrowserWindow, ipcMain } from 'electron';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import localDevices from 'local-devices';
+import vendorLookup from '@network-utils/vendor-lookup';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
+const { lookupMac } = vendorLookup;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const execAsync = promisify(exec);
 
 // Logger utility for VS Code output
