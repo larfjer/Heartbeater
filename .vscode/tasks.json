@@ -1,0 +1,75 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Lint: Check All",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "lint"],
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.+?):\\s(\\d+):(\\d+)?\\s-\\s(.+)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "message": 4
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Lint: JavaScript",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "lint:js"],
+      "problemMatcher": "$eslint-stylish"
+    },
+    {
+      "label": "Lint: HTML",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "lint:html"],
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.+):\\s(\\d+)\\s-\\s(.+)$",
+          "file": 1,
+          "line": 2,
+          "message": 3
+        }
+      }
+    },
+    {
+      "label": "Lint: Fix All",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "lint:fix"],
+      "group": {
+        "kind": "build"
+      }
+    },
+    {
+      "label": "Format: Check",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "format:check"]
+    },
+    {
+      "label": "Format: Fix",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "format"]
+    },
+    {
+      "label": "Analyze: Full",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "analyze"],
+      "group": {
+        "kind": "build"
+      }
+    }
+  ]
+}

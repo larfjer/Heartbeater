@@ -1,0 +1,19 @@
+{
+  "attr-unsafe": false,
+  "doctype-first": true,
+  "doctype-html5": true,
+  "attr-value-single-quotes": false,
+  "img-alt-require": true,
+  "id-class-value": false,
+  "style-disabled": false,
+  "id-unique": true,
+  "src-not-empty": true,
+  "title-require": true,
+  "href-abs-or-rel": false,
+  "tag-pair": true,
+  "space-tab-mixed-disabled": true,
+  "attr-no-duplication": true,
+  "empty-tag-not-self-closed": false,
+  "spec-char-escape": true,
+  "text-content-length": false
+}

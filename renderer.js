@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let html = '<div class="group-grid">';
 
-    groups.forEach((group, index) => {
+    groups.forEach((group, _index) => {
       html += `
         <div class="group-card">
           <h3 class="group-card-title">
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Add event listeners to expand rows
         document.querySelectorAll('.device-row').forEach((row) => {
-          row.addEventListener('click', async (e) => {
+          row.addEventListener('click', async (_e) => {
             const index = row.dataset.index;
             const detailsRow = document.querySelector(`.details-row[data-index="${index}"]`);
             const icon = row.querySelector('.expand-icon');
@@ -184,7 +184,8 @@ document.addEventListener('DOMContentLoaded', () => {
                   });
                   servicesList.innerHTML = servicesHtml;
                 } else {
-                  servicesList.innerHTML = '<p style="color: var(--md-sys-color-on-surface-variant); margin: 0;">No services detected</p>';
+                  servicesList.innerHTML =
+                    '<p style="color: var(--md-sys-color-on-surface-variant); margin: 0;">No services detected</p>';
                 }
               } else {
                 osInfo.textContent = 'Error scanning device';

@@ -39,9 +39,12 @@ async function enrichDeviceWithManufacturer(device) {
 async function scanDeviceDetails(ip) {
   try {
     log.debug(`Running nmap scan on ${ip}...`);
-    const { stdout } = await execAsync(`nmap -sV -O -T4 --max-os-tries 1 ${ip} 2>/dev/null || true`, {
-      timeout: 30000,
-    });
+    const { stdout } = await execAsync(
+      `nmap -sV -O -T4 --max-os-tries 1 ${ip} 2>/dev/null || true`,
+      {
+        timeout: 30000,
+      }
+    );
 
     const details = {
       os: 'Unknown',

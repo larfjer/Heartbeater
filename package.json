@@ -3,15 +3,29 @@
   "version": "1.0.0",
   "description": "Heartbeater Electron App",
   "main": "main.js",
+  "type": "module",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder"
+    "build": "electron-builder",
+    "lint": "npm run lint:js && npm run lint:html",
+    "lint:js": "eslint --ext .js .",
+    "lint:html": "htmlhint index.html",
+    "lint:fix": "prettier --write . && eslint --fix --ext .js .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "analyze": "npm run lint && npm run format:check"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^33.0.0"
+    "@eslint/js": "^9.39.2",
+    "electron": "^33.0.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "htmlhint": "^1.8.0",
+    "prettier": "^3.7.4"
   },
   "dependencies": {
     "@network-utils/vendor-lookup": "^1.0.12",
