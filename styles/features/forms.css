@@ -28,10 +28,31 @@
   transition: all var(--transition-fast);
 }
 
-.form-input:focus {
+.form-input-inline {
+  padding: var(--spacing-md);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--radius-md);
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-body);
+  box-sizing: border-box;
+  transition: all var(--transition-fast);
+}
+
+.form-input:focus,
+.form-input-inline:focus {
   outline: none;
   border-color: var(--md-sys-color-primary);
   box-shadow: 0 0 0 3px rgba(103, 80, 164, 0.1);
+}
+
+.form-input:disabled,
+.form-input-inline:disabled {
+  background-color: var(--md-sys-color-surface-variant);
+  color: var(--md-sys-color-on-surface-variant);
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .form-input::placeholder {

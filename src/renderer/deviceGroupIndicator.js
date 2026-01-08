@@ -47,31 +47,6 @@ export async function updateDeviceGroupIndicator(deviceId, device = null) {
         console.log("[Renderer] Added badge with count:", groupCount);
       }
     }
-
-    // Also update the action badge if it exists
-    const actionBadge = deviceRow.querySelector(".action-badge");
-    if (actionBadge) {
-      if (groupCount > 0) {
-        actionBadge.textContent = groupCount;
-        console.log("[Renderer] Updated action badge with count:", groupCount);
-      } else {
-        actionBadge.remove();
-        console.log("[Renderer] Removed action badge");
-      }
-    } else if (groupCount > 0) {
-      // If action badge doesn't exist but we have groups, add it
-      const actionsCell = deviceRow.querySelector("td:last-child");
-      if (actionsCell) {
-        const badge = document.createElement("span");
-        badge.className = "action-badge";
-        badge.textContent = groupCount;
-        actionsCell.appendChild(badge);
-        console.log(
-          "[Renderer] Created new action badge with count:",
-          groupCount,
-        );
-      }
-    }
   } else {
     console.log("[Renderer] Device row not found for ID:", deviceId);
   }

@@ -100,7 +100,6 @@ export async function renderDeviceScan(devices) {
               <span class="material-icons">group_add</span>
               Add to Group
             </button>
-            ${groupCount > 0 ? `<span class="action-badge">${groupCount}</span>` : ""}
           </div>
         </td>
       </tr>
@@ -108,9 +107,14 @@ export async function renderDeviceScan(devices) {
         <td colspan="6">
           <div class="details-cell">
             <div class="details-title">Friendly Name</div>
-            <div style="display: flex; gap: 12px; margin-bottom: 24px;">
-              <input type="text" class="device-friendly-name-input" style="flex: 1; padding: 8px; border: 1px solid var(--md-sys-color-outline); border-radius: 4px;" placeholder="Enter friendly name" />
-              <button class="save-friendly-name-btn" style="padding: 8px 16px; background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">Save</button>
+            <div style="display: inline-flex; gap: 12px; margin-bottom: 24px; align-items: center;">
+              <input
+                type="text"
+                class="device-friendly-name-input form-input-inline"
+                placeholder="Enter friendly name"
+                style="width: 600px;"
+              />
+              <button class="save-friendly-name-btn md-button">Save</button>
             </div>
             <div class="friendly-name-info"></div>
             
@@ -175,7 +179,7 @@ export async function renderDeviceScan(devices) {
         if (storedDevice) {
           friendlyNameInput.value = storedDevice.friendlyName || "";
           if (storedDevice.friendlyName) {
-            friendlyNameInfo.textContent = `Original name: ${storedDevice.name}`;
+            friendlyNameInfo.innerHTML = `<span style="color: var(--md-sys-color-on-surface-variant); font-size: var(--font-size-label);">Original name: ${storedDevice.name}</span>`;
           } else {
             friendlyNameInfo.textContent = "";
           }
@@ -191,7 +195,7 @@ export async function renderDeviceScan(devices) {
               if (result.success) {
                 console.log("[Renderer] Friendly name updated");
                 if (newFriendlyName) {
-                  friendlyNameInfo.textContent = `Original name: ${storedDevice.name}`;
+                  friendlyNameInfo.innerHTML = `<span style="color: var(--md-sys-color-on-surface-variant); font-size: var(--font-size-label);">Original name: ${storedDevice.name}</span>`;
                 } else {
                   friendlyNameInfo.textContent = "";
                 }
@@ -214,17 +218,24 @@ export async function renderDeviceScan(devices) {
           const groups = groupsResult.success ? groupsResult.groups : [];
 
           if (groups.length === 0) {
+            friendlyNameInput.disabled = true;
+            saveFriendlyNameBtn.disabled = true;
+            friendlyNameInput.title = "Add device to a group to edit name";
+            saveFriendlyNameBtn.title = "Add device to a group to edit name";
             groupsList.innerHTML =
-              '<p style="color: var(--md-sys-color-on-surface-variant); margin: 0;">Device is not part of any groups</p>';
+              '<span style="color: var(--md-sys-color-on-surface-variant); font-size: var(--font-size-label);">Not assigned to any groups</span>';
           } else {
-            let groupsHtml = "";
+            friendlyNameInput.disabled = false;
+            saveFriendlyNameBtn.disabled = false;
+            friendlyNameInput.title = "";
+            saveFriendlyNameBtn.title = "";
+
+            let groupsHtml =
+              '<div style="display: flex; flex-wrap: wrap; gap: 8px;">';
             groups.forEach((group) => {
-              groupsHtml += `
-                <div style="padding: 8px; background-color: var(--md-sys-color-surface-variant); border-radius: 4px; margin: 4px 0;">
-                  ${group.name}
-                </div>
-              `;
+              groupsHtml += `<span class="group-badge">${group.name}</span>`;
             });
+            groupsHtml += "</div>";
             groupsList.innerHTML = groupsHtml;
           }
 
@@ -233,6 +244,15 @@ export async function renderDeviceScan(devices) {
           osInfo.textContent = "Not scanned";
           const servicesList = detailsRow.querySelector(".services-list");
           servicesList.textContent = "No services scanned";
+        } else {
+          // Device not in storage (not in any group)
+          friendlyNameInput.disabled = true;
+          saveFriendlyNameBtn.disabled = true;
+          friendlyNameInput.title = "Add device to a group to edit name";
+          saveFriendlyNameBtn.title = "Add device to a group to edit name";
+
+          detailsRow.querySelector(".device-groups-list").innerHTML =
+            '<span style="color: var(--md-sys-color-on-surface-variant); font-size: var(--font-size-label);">Not assigned to any groups</span>';
         }
       }
     });
