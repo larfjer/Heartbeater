@@ -107,3 +107,61 @@
 .add-to-group-btn .material-icons {
   font-size: 16px;
 }
+
+/* Remove/Delete Button */
+.remove-device-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  color: var(--md-sys-color-error);
+  border: none;
+  padding: 6px 8px;
+  height: 32px;
+  font-family: var(--font-family-primary);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.remove-device-btn:hover {
+  background-color: var(--md-sys-color-error-container);
+}
+
+.remove-device-btn:active {
+  transform: scale(0.95);
+}
+
+.remove-device-btn .material-icons {
+  font-size: 18px;
+}
+
+/* Add Device Manually Button */
+.add-device-manually-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  border: none;
+  padding: 10px 24px;
+  height: 40px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-body);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  margin-top: 16px;
+}
+
+.add-device-manually-btn:hover {
+  box-shadow: var(--shadow-md);
+  filter: brightness(1.1);
+}
+
+.add-device-manually-btn:active {
+  transform: scale(0.98);
+}

@@ -5,6 +5,76 @@
 import { domElements, appState } from "./domElements.js";
 import { openAddToGroupModal } from "./addToGroupModal.js";
 
+/**
+ * Renders a device row for display in a table or list
+ * @param {Object} device - Device object with id, name, ip, mac, manufacturer, etc.
+ * @param {Object} options - Configuration options
+ * @param {string} options.rowId - Unique identifier for the row (device index or id)
+ * @param {string} options.buttonType - Type of button: "add-to-group" or "remove-from-group"
+ * @param {string} options.buttonGroupId - Group ID (required for remove-from-group)
+ * @param {boolean} options.showGroupBadge - Whether to show group count badge (default: false)
+ * @returns {string} HTML string for the device row
+ */
+export function renderDeviceRow(device, options = {}) {
+  const {
+    rowId = device.id || device.mac,
+    buttonType = "add-to-group",
+    buttonGroupId = null,
+    showGroupBadge = false,
+  } = options;
+
+  const displayName = device.friendlyName || device.name || "(Unknown)";
+  const manufacturer = device.manufacturer || "Unknown";
+
+  let buttonHtml = "";
+  if (buttonType === "add-to-group") {
+    buttonHtml = `
+      <button class="add-to-group-btn" data-device-id="${device.id}">
+        <span class="material-icons">group_add</span>
+        Add to Group
+      </button>
+    `;
+  } else if (buttonType === "remove-from-group") {
+    buttonHtml = `
+      <button class="remove-device-btn" data-group-id="${buttonGroupId}" data-device-id="${device.id}">
+        <span class="material-icons">close</span>
+      </button>
+    `;
+  }
+
+  let groupBadge = "";
+  if (showGroupBadge && device.groupCount > 0) {
+    groupBadge = `<span class="device-groups-badge">${device.groupCount} group${device.groupCount !== 1 ? "s" : ""}</span>`;
+  }
+
+  return `
+    <tr class="device-row" data-device-id="${device.id}" data-row-id="${rowId}">
+      <td style="text-align: center;">
+        <span class="material-icons expand-icon" style="font-size: 20px; cursor: pointer;">expand_more</span>
+      </td>
+      <td>
+        <div class="device-name">
+          <div class="device-icon">
+            <span class="material-icons">devices</span>
+          </div>
+          <div>
+            <div class="device-name-text">${displayName}</div>
+            ${groupBadge}
+          </div>
+        </div>
+      </td>
+      <td><span class="ip-address">${device.ip}</span></td>
+      <td><span class="mac-address">${device.mac}</span></td>
+      <td><span class="manufacturer-badge">${manufacturer}</span></td>
+      <td>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          ${buttonHtml}
+        </div>
+      </td>
+    </tr>
+  `;
+}
+
 export async function renderDeviceScan(devices) {
   const { results } = domElements;
 
@@ -58,7 +128,6 @@ export async function renderDeviceScan(devices) {
 
     // Get group count if device is in storage
     let groupCount = 0;
-    let groupBadge = "";
     if (storedDevice) {
       try {
         const groupsResult = await window.api.storage.getGroupsForDevice(
@@ -66,43 +135,27 @@ export async function renderDeviceScan(devices) {
         );
         if (groupsResult.success) {
           groupCount = groupsResult.groups.length;
-          if (groupCount > 0) {
-            groupBadge = `<span class="device-groups-badge">${groupCount} group${groupCount !== 1 ? "s" : ""}</span>`;
-          }
         }
       } catch (_e) {
         console.debug("Error getting groups for device");
       }
     }
 
+    html += renderDeviceRow(
+      {
+        ...device,
+        id: storedDevice?.id || device.mac || device.id,
+        friendlyName: storedDevice?.friendlyName || device.name,
+        groupCount,
+      },
+      {
+        rowId: index,
+        buttonType: "add-to-group",
+        showGroupBadge: true,
+      },
+    );
+
     html += `
-      <tr class="device-row" data-ip="${device.ip}" data-index="${index}" data-device-id="${storedDevice?.id || device.mac || device.id}">
-        <td style="text-align: center;">
-          <span class="material-icons expand-icon" style="font-size: 20px; cursor: pointer;">expand_more</span>
-        </td>
-        <td>
-          <div class="device-name">
-            <div class="device-icon">
-              <span class="material-icons">devices</span>
-            </div>
-            <div>
-              <div class="device-name-text">${storedDevice?.friendlyName || device.name || "(Unknown)"}</div>
-              ${groupBadge}
-            </div>
-          </div>
-        </td>
-        <td><span class="ip-address">${device.ip}</span></td>
-        <td><span class="mac-address">${device.mac}</span></td>
-        <td><span class="manufacturer-badge">${device.manufacturer || "Unknown"}</span></td>
-        <td>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <button class="add-to-group-btn" data-device-index="${index}">
-              <span class="material-icons">group_add</span>
-              Add to Group
-            </button>
-          </div>
-        </td>
-      </tr>
       <tr class="details-row" data-index="${index}">
         <td colspan="6">
           <div class="details-cell">
@@ -143,7 +196,7 @@ export async function renderDeviceScan(devices) {
       // Don't expand if clicking the add to group button
       if (e.target.closest(".add-to-group-btn")) return;
 
-      const index = row.dataset.index;
+      const index = row.dataset.rowId;
       const detailsRow = document.querySelector(
         `.details-row[data-index="${index}"]`,
       );
@@ -262,8 +315,8 @@ export async function renderDeviceScan(devices) {
   document.querySelectorAll(".add-to-group-btn").forEach((btn) => {
     btn.addEventListener("click", async (e) => {
       e.stopPropagation();
-      const deviceIndex = btn.dataset.deviceIndex;
-      const device = appState.currentScannedDevices[deviceIndex];
+      const rowId = btn.closest(".device-row")?.dataset.rowId;
+      const device = appState.currentScannedDevices[rowId];
 
       // Add device to storage if not already there
       try {

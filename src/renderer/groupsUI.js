@@ -3,6 +3,7 @@
  */
 
 import { domElements } from "./domElements.js";
+import { renderDeviceRow } from "./deviceScanUI.js";
 
 export async function renderGroups() {
   const { groupsContainer } = domElements;
@@ -106,35 +107,194 @@ export async function renderGroups() {
             devicesList.innerHTML =
               '<p style="color: var(--md-sys-color-on-surface-variant); margin: 0;">No devices in this group</p>';
           } else {
-            let devicesHtml =
-              '<div style="display: flex; flex-direction: column; gap: 8px;">';
-            devices.forEach((device) => {
-              const displayName =
-                device.friendlyName || device.name || "(Unknown)";
-              const originalName = device.friendlyName
-                ? ` (${device.name})`
-                : "";
+            let devicesHtml = `
+              <table class="md-table" style="width: 100%;">
+                <tbody>
+            `;
+            devices.forEach((device, deviceIndex) => {
+              devicesHtml += renderDeviceRow(device, {
+                rowId: deviceIndex,
+                buttonType: "remove-from-group",
+                buttonGroupId: groupId,
+              });
+
+              // Add details row for expansion
               devicesHtml += `
-                <div style="padding: 12px; background-color: var(--md-sys-color-surface); border-radius: 6px; border-left: 4px solid var(--md-sys-color-primary);">
-                  <div style="display: flex; align-items: center; gap: 12px;">
-                    <span class="material-icons" style="color: var(--md-sys-color-on-surface-variant);">devices</span>
-                    <div style="flex: 1;">
-                      <div style="font-weight: 500; color: var(--md-sys-color-on-surface);">${displayName}</div>
-                      ${originalName ? `<div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant);">Original: ${originalName}</div>` : ""}
-                      <div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant); margin-top: 4px;">
-                        <span style="font-family: monospace;">${device.ip}</span> • <span style="font-family: monospace;">${device.mac}</span>
+                <tr class="details-row" data-index="${deviceIndex}">
+                  <td colspan="6">
+                    <div class="details-cell">
+                      <div class="details-title">Friendly Name</div>
+                      <div style="display: inline-flex; gap: 12px; margin-bottom: 24px; align-items: center;">
+                        <input
+                          type="text"
+                          class="device-friendly-name-input form-input-inline"
+                          placeholder="Enter friendly name"
+                          style="width: 600px;"
+                        />
+                        <button class="save-friendly-name-btn md-button">Save</button>
+                      </div>
+                      <div class="friendly-name-info"></div>
+                      
+                      <div class="details-title">Groups</div>
+                      <div class="device-groups-list"></div>
+                      
+                      <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div class="device-groups-list"></div>
+                        
+                        <div class="details-title">Operating System</div>
+                        <div class="os-info">Loading...</div>
+                        <div class="details-title">Services</div>
+                        <div class="services-list">Loading...</div>
                       </div>
                     </div>
-                    <span class="manufacturer-badge">${device.manufacturer || "Unknown"}</span>
-                    <button class="remove-device-btn" data-group-id="${groupId}" data-device-id="${device.id}" style="background: none; border: none; padding: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--md-sys-color-error); border-radius: 4px; transition: background-color 0.2s;">
-                      <span class="material-icons" style="font-size: 20px;">close</span>
-                    </button>
-                  </div>
-                </div>
+                  </td>
+                </tr>
               `;
             });
-            devicesHtml += "</div>";
+            devicesHtml += `
+                </tbody>
+              </table>
+            `;
             devicesList.innerHTML = devicesHtml;
+
+            // Add event listeners for device row expansion
+            devicesList.querySelectorAll(".device-row").forEach((row) => {
+              row.addEventListener("click", async (e) => {
+                // Don't expand if clicking the remove button
+                if (e.target.closest(".remove-device-btn")) return;
+
+                const index = row.dataset.rowId;
+                const detailsRow = devicesList.querySelector(
+                  `.details-row[data-index="${index}"]`,
+                );
+                const icon = row.querySelector(".expand-icon");
+
+                detailsRow.classList.toggle("expanded");
+                icon.classList.toggle("expanded");
+
+                if (detailsRow.classList.contains("expanded")) {
+                  // Get the stored device to show groups and friendly name
+                  const deviceId = row.dataset.deviceId;
+                  const mac = row.querySelector(".mac-address").textContent;
+
+                  // Try to get device by ID first, then fall back to MAC lookup
+                  let storedDeviceResult =
+                    await window.api.storage.getDevice(deviceId);
+                  if (!storedDeviceResult?.success) {
+                    // If not found by ID, try MAC address
+                    storedDeviceResult =
+                      await window.api.storage.getDeviceByMac(mac);
+                  }
+                  const storedDevice =
+                    storedDeviceResult?.device || storedDeviceResult;
+
+                  // Populate friendly name section
+                  const friendlyNameInput = detailsRow.querySelector(
+                    ".device-friendly-name-input",
+                  );
+                  const friendlyNameInfo = detailsRow.querySelector(
+                    ".friendly-name-info",
+                  );
+                  const saveFriendlyNameBtn = detailsRow.querySelector(
+                    ".save-friendly-name-btn",
+                  );
+
+                  if (storedDevice) {
+                    friendlyNameInput.value = storedDevice.friendlyName || "";
+                    if (storedDevice.friendlyName) {
+                      friendlyNameInfo.innerHTML = `<span style="color: var(--md-sys-color-on-surface-variant); font-size: var(--font-size-label);">Original name: ${storedDevice.name}</span>`;
+                    } else {
+                      friendlyNameInfo.textContent = "";
+                    }
+
+                    // Save friendly name button handler
+                    saveFriendlyNameBtn.onclick = async () => {
+                      const newFriendlyName = friendlyNameInput.value.trim();
+                      try {
+                        const result =
+                          await window.api.storage.updateDeviceFriendlyName(
+                            storedDevice.id,
+                            newFriendlyName,
+                          );
+                        if (result.success) {
+                          console.log("[Renderer] Friendly name updated");
+                          if (newFriendlyName) {
+                            friendlyNameInfo.innerHTML = `<span style="color: var(--md-sys-color-on-surface-variant); font-size: var(--font-size-label);">Original name: ${storedDevice.name}</span>`;
+                          } else {
+                            friendlyNameInfo.textContent = "";
+                          }
+                          // Update the device name in the table
+                          const nameText =
+                            row.querySelector(".device-name-text");
+                          if (nameText) {
+                            nameText.textContent =
+                              newFriendlyName || storedDevice.name;
+                          }
+                        }
+                      } catch (error) {
+                        console.error(
+                          "[Renderer] Error saving friendly name:",
+                          error,
+                        );
+                        alert("Error: " + error.message);
+                      }
+                    };
+
+                    // Populate device groups section
+                    const groupsList = detailsRow.querySelector(
+                      ".device-groups-list",
+                    );
+                    const groupsResult =
+                      await window.api.storage.getGroupsForDevice(deviceId);
+                    const groups = groupsResult.success
+                      ? groupsResult.groups
+                      : [];
+
+                    if (groups.length === 0) {
+                      friendlyNameInput.disabled = true;
+                      saveFriendlyNameBtn.disabled = true;
+                      friendlyNameInput.title =
+                        "Add device to a group to edit name";
+                      saveFriendlyNameBtn.title =
+                        "Add device to a group to edit name";
+                      groupsList.innerHTML =
+                        '<span style="color: var(--md-sys-color-on-surface-variant); font-size: var(--font-size-label);">Not assigned to any groups</span>';
+                    } else {
+                      friendlyNameInput.disabled = false;
+                      saveFriendlyNameBtn.disabled = false;
+                      friendlyNameInput.title = "";
+                      saveFriendlyNameBtn.title = "";
+
+                      let groupsHtml =
+                        '<div style="display: flex; flex-wrap: wrap; gap: 8px;">';
+                      groups.forEach((group) => {
+                        groupsHtml += `<span class="group-badge">${group.name}</span>`;
+                      });
+                      groupsHtml += "</div>";
+                      groupsList.innerHTML = groupsHtml;
+                    }
+
+                    // Populate OS and services (stub for future functionality)
+                    const osInfo = detailsRow.querySelector(".os-info");
+                    osInfo.textContent = "Not scanned";
+                    const servicesList =
+                      detailsRow.querySelector(".services-list");
+                    servicesList.textContent = "No services scanned";
+                  } else {
+                    // Device not in storage (not in any group)
+                    friendlyNameInput.disabled = true;
+                    saveFriendlyNameBtn.disabled = true;
+                    friendlyNameInput.title =
+                      "Add device to a group to edit name";
+                    saveFriendlyNameBtn.title =
+                      "Add device to a group to edit name";
+
+                    detailsRow.querySelector(".device-groups-list").innerHTML =
+                      '<span style="color: var(--md-sys-color-on-surface-variant); font-size: var(--font-size-label);">Not assigned to any groups</span>';
+                  }
+                }
+              });
+            });
 
             // Add event listeners for remove buttons
             devicesList
@@ -150,65 +310,9 @@ export async function renderGroups() {
                     gId,
                   );
                   if (result.success) {
-                    // Refresh the group display
-                    const updatedDevicesResult =
-                      await window.api.storage.getDevicesInGroup(gId);
-                    const updatedDevices = updatedDevicesResult.success
-                      ? updatedDevicesResult.devices
-                      : [];
-
-                    if (updatedDevices.length === 0) {
-                      devicesList.innerHTML =
-                        '<p style="color: var(--md-sys-color-on-surface-variant); margin: 0;">No devices in this group</p>';
-                    } else {
-                      let updatedHtml =
-                        '<div style="display: flex; flex-direction: column; gap: 8px;">';
-                      updatedDevices.forEach((d) => {
-                        const dDisplayName =
-                          d.friendlyName || d.name || "(Unknown)";
-                        const dOriginalName = d.friendlyName
-                          ? ` (${d.name})`
-                          : "";
-                        updatedHtml += `
-                        <div style="padding: 12px; background-color: var(--md-sys-color-surface); border-radius: 6px; border-left: 4px solid var(--md-sys-color-primary);">
-                          <div style="display: flex; align-items: center; gap: 12px;">
-                            <span class="material-icons" style="color: var(--md-sys-color-on-surface-variant);">devices</span>
-                            <div style="flex: 1;">
-                              <div style="font-weight: 500; color: var(--md-sys-color-on-surface);">${dDisplayName}</div>
-                              ${dOriginalName ? `<div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant);">Original: ${dOriginalName}</div>` : ""}
-                              <div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant); margin-top: 4px;">
-                                <span style="font-family: monospace;">${d.ip}</span> • <span style="font-family: monospace;">${d.mac}</span>
-                              </div>
-                            </div>
-                            <span class="manufacturer-badge">${d.manufacturer || "Unknown"}</span>
-                            <button class="remove-device-btn" data-group-id="${gId}" data-device-id="${d.id}" style="background: none; border: none; padding: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--md-sys-color-error); border-radius: 4px; transition: background-color 0.2s;">
-                              <span class="material-icons" style="font-size: 20px;">close</span>
-                            </button>
-                          </div>
-                        </div>
-                      `;
-                      });
-                      updatedHtml += "</div>";
-                      devicesList.innerHTML = updatedHtml;
-
-                      // Re-attach event listeners to new buttons
-                      devicesList
-                        .querySelectorAll(".remove-device-btn")
-                        .forEach((newBtn) => {
-                          newBtn.addEventListener("click", arguments.callee);
-                        });
-                    }
+                    // Refresh the entire groups display
+                    await renderGroups();
                   }
-                });
-
-                // Add hover effect
-                btn.addEventListener("mouseenter", () => {
-                  btn.style.backgroundColor =
-                    "var(--md-sys-color-error-container)";
-                });
-
-                btn.addEventListener("mouseleave", () => {
-                  btn.style.backgroundColor = "transparent";
                 });
               });
           }
