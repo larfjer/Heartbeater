@@ -20,10 +20,7 @@ class GroupStorageService {
           devices: {},
           groups: {},
         };
-        fs.writeFileSync(
-          this.storageFile,
-          JSON.stringify(initialData, null, 2),
-        );
+        fs.writeFileSync(this.storageFile, JSON.stringify(initialData, null, 2));
       }
     } catch (error) {
       console.error("Error initializing storage:", error);
@@ -103,9 +100,9 @@ class GroupStorageService {
       // Remove from all groups
       device.groupIds.forEach((groupId) => {
         if (data.groups[groupId]) {
-          data.groups[groupId].deviceIds = data.groups[
-            groupId
-          ].deviceIds.filter((id) => id !== deviceId);
+          data.groups[groupId].deviceIds = data.groups[groupId].deviceIds.filter(
+            (id) => id !== deviceId
+          );
         }
       });
       delete data.devices[deviceId];
@@ -195,13 +192,13 @@ class GroupStorageService {
 
     if (data.devices[deviceId]) {
       data.devices[deviceId].groupIds = data.devices[deviceId].groupIds.filter(
-        (id) => id !== groupId,
+        (id) => id !== groupId
       );
     }
 
     if (data.groups[groupId]) {
       data.groups[groupId].deviceIds = data.groups[groupId].deviceIds.filter(
-        (id) => id !== deviceId,
+        (id) => id !== deviceId
       );
     }
 

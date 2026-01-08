@@ -16,18 +16,15 @@ export function registerGroupDeviceHandlers(storage) {
     }
   });
 
-  ipcMain.handle(
-    "storage:removeDeviceFromGroup",
-    (event, deviceId, groupId) => {
-      try {
-        const success = storage.removeDeviceFromGroup(deviceId, groupId);
-        return { success };
-      } catch (error) {
-        log.error("Error removing device from group:", error.message);
-        return { success: false, error: error.message };
-      }
-    },
-  );
+  ipcMain.handle("storage:removeDeviceFromGroup", (event, deviceId, groupId) => {
+    try {
+      const success = storage.removeDeviceFromGroup(deviceId, groupId);
+      return { success };
+    } catch (error) {
+      log.error("Error removing device from group:", error.message);
+      return { success: false, error: error.message };
+    }
+  });
 
   ipcMain.handle("storage:getDevicesInGroup", (event, groupId) => {
     try {

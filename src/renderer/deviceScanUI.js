@@ -61,9 +61,7 @@ export async function renderDeviceScan(devices) {
     let groupBadge = "";
     if (storedDevice) {
       try {
-        const groupsResult = await window.api.storage.getGroupsForDevice(
-          storedDevice.id,
-        );
+        const groupsResult = await window.api.storage.getGroupsForDevice(storedDevice.id);
         if (groupsResult.success) {
           groupCount = groupsResult.groups.length;
           if (groupCount > 0) {
@@ -140,9 +138,7 @@ export async function renderDeviceScan(devices) {
       if (e.target.closest(".add-to-group-btn")) return;
 
       const index = row.dataset.index;
-      const detailsRow = document.querySelector(
-        `.details-row[data-index="${index}"]`,
-      );
+      const detailsRow = document.querySelector(`.details-row[data-index="${index}"]`);
       const icon = row.querySelector(".expand-icon");
 
       detailsRow.classList.toggle("expanded");
@@ -162,15 +158,9 @@ export async function renderDeviceScan(devices) {
         const storedDevice = storedDeviceResult?.device || storedDeviceResult;
 
         // Populate friendly name section
-        const friendlyNameInput = detailsRow.querySelector(
-          ".device-friendly-name-input",
-        );
-        const friendlyNameInfo = detailsRow.querySelector(
-          ".friendly-name-info",
-        );
-        const saveFriendlyNameBtn = detailsRow.querySelector(
-          ".save-friendly-name-btn",
-        );
+        const friendlyNameInput = detailsRow.querySelector(".device-friendly-name-input");
+        const friendlyNameInfo = detailsRow.querySelector(".friendly-name-info");
+        const saveFriendlyNameBtn = detailsRow.querySelector(".save-friendly-name-btn");
 
         if (storedDevice) {
           friendlyNameInput.value = storedDevice.friendlyName || "";
@@ -186,7 +176,7 @@ export async function renderDeviceScan(devices) {
             try {
               const result = await window.api.storage.updateDeviceFriendlyName(
                 storedDevice.id,
-                newFriendlyName,
+                newFriendlyName
               );
               if (result.success) {
                 console.log("[Renderer] Friendly name updated");
@@ -209,8 +199,7 @@ export async function renderDeviceScan(devices) {
 
           // Populate device groups section
           const groupsList = detailsRow.querySelector(".device-groups-list");
-          const groupsResult =
-            await window.api.storage.getGroupsForDevice(deviceId);
+          const groupsResult = await window.api.storage.getGroupsForDevice(deviceId);
           const groups = groupsResult.success ? groupsResult.groups : [];
 
           if (groups.length === 0) {

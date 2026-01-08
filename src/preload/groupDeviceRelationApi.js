@@ -33,16 +33,14 @@ const groupDeviceRelationApi = {
    * @param {string} groupId - Group ID
    * @returns {Promise} Array of devices in group
    */
-  getDevicesInGroup: (groupId) =>
-    ipcRenderer.invoke("storage:getDevicesInGroup", groupId),
+  getDevicesInGroup: (groupId) => ipcRenderer.invoke("storage:getDevicesInGroup", groupId),
 
   /**
    * Get all groups for a device
    * @param {string} deviceId - Device ID
    * @returns {Promise} Array of groups for device
    */
-  getGroupsForDevice: (deviceId) =>
-    ipcRenderer.invoke("storage:getGroupsForDevice", deviceId),
+  getGroupsForDevice: (deviceId) => ipcRenderer.invoke("storage:getGroupsForDevice", deviceId),
 };
 
 export default groupDeviceRelationApi;

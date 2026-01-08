@@ -5,17 +5,10 @@
 export async function updateDeviceGroupIndicator(deviceId, device = null) {
   const groups = await window.api.storage.getGroupsForDevice(deviceId);
   const groupCount = groups.success ? groups.groups.length : 0;
-  console.log(
-    "[Renderer] Updating device group indicator for:",
-    deviceId,
-    "count:",
-    groupCount,
-  );
+  console.log("[Renderer] Updating device group indicator for:", deviceId, "count:", groupCount);
 
   // Try to find the device row by device ID first
-  let deviceRow = document.querySelector(
-    `tr.device-row[data-device-id="${deviceId}"]`,
-  );
+  let deviceRow = document.querySelector(`tr.device-row[data-device-id="${deviceId}"]`);
 
   // If not found by ID, try to find by looking up the device and using its MAC
   if (!deviceRow && device && device.mac) {
@@ -66,10 +59,7 @@ export async function updateDeviceGroupIndicator(deviceId, device = null) {
         badge.className = "action-badge";
         badge.textContent = groupCount;
         actionsCell.appendChild(badge);
-        console.log(
-          "[Renderer] Created new action badge with count:",
-          groupCount,
-        );
+        console.log("[Renderer] Created new action badge with count:", groupCount);
       }
     }
   } else {

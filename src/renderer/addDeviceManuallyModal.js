@@ -80,9 +80,7 @@ export function initializeAddDeviceManually() {
     // Validate MAC address format only if provided
     const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
     if (mac && !macRegex.test(mac)) {
-      alert(
-        "Invalid MAC address format. Use format: 00:11:22:33:44:55 or 00-11-22-33-44-55",
-      );
+      alert("Invalid MAC address format. Use format: 00:11:22:33:44:55 or 00-11-22-33-44-55");
       return;
     }
 
@@ -94,9 +92,8 @@ export function initializeAddDeviceManually() {
     }
 
     // Get selected groups
-    const selectedGroupCheckboxes = manualDeviceGroupList.querySelectorAll(
-      ".group-checkbox:checked",
-    );
+    const selectedGroupCheckboxes =
+      manualDeviceGroupList.querySelectorAll(".group-checkbox:checked");
     if (selectedGroupCheckboxes.length === 0) {
       alert("Please select at least one group for the device");
       return;
@@ -129,15 +126,9 @@ export function initializeAddDeviceManually() {
 
       // Add device to selected groups
       for (const groupId of appState.selectedGroupIdsForManualDevice) {
-        const addToGroupResult = await window.api.storage.addDeviceToGroup(
-          newDevice.id,
-          groupId,
-        );
+        const addToGroupResult = await window.api.storage.addDeviceToGroup(newDevice.id, groupId);
         if (!addToGroupResult.success) {
-          console.error(
-            "[Renderer] Error adding device to group:",
-            addToGroupResult.error,
-          );
+          console.error("[Renderer] Error adding device to group:", addToGroupResult.error);
         }
       }
 

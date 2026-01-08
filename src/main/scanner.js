@@ -35,7 +35,7 @@ export async function scanDeviceDetails(ip) {
       `nmap -sV -O -T4 --max-os-tries 1 ${ip} 2>/dev/null || true`,
       {
         timeout: 30000,
-      },
+      }
     );
 
     const details = {
@@ -50,9 +50,7 @@ export async function scanDeviceDetails(ip) {
     }
 
     // Extract running services
-    const serviceLines = stdout.match(
-      /(\d+)\/\w+\s+open\s+(.+?)\s+(.+?)(?:\n|$)/g,
-    );
+    const serviceLines = stdout.match(/(\d+)\/\w+\s+open\s+(.+?)\s+(.+?)(?:\n|$)/g);
     if (serviceLines) {
       serviceLines.forEach((line) => {
         const match = line.match(/(\d+)\/(\w+)\s+open\s+(.+?)\s+(.+?)(?:\n|$)/);
@@ -87,9 +85,7 @@ export async function scanNetwork() {
 
     // Enrich with manufacturer info
     log.debug("Enriching devices with manufacturer info...");
-    devices = await Promise.all(
-      devices.map((d) => enrichDeviceWithManufacturer(d)),
-    );
+    devices = await Promise.all(devices.map((d) => enrichDeviceWithManufacturer(d)));
 
     // Optionally scan details for each device (this can take time)
     // Uncomment below to enable nmap scanning for OS and services
@@ -103,7 +99,7 @@ export async function scanNetwork() {
 
     devices.forEach((device, index) => {
       log.debug(
-        `  Device ${index + 1}: ${device.name || "(Unknown)"} - ${device.ip} - ${device.mac} - ${device.manufacturer}`,
+        `  Device ${index + 1}: ${device.name || "(Unknown)"} - ${device.ip} - ${device.mac} - ${device.manufacturer}`
       );
     });
 

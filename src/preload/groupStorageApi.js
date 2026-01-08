@@ -16,8 +16,7 @@ const groupStorageApi = {
    * @param {string} description - Group description
    * @returns {Promise} Created group
    */
-  createGroup: (name, description) =>
-    ipcRenderer.invoke("storage:createGroup", name, description),
+  createGroup: (name, description) => ipcRenderer.invoke("storage:createGroup", name, description),
 
   /**
    * Update group metadata

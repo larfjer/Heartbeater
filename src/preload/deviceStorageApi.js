@@ -24,11 +24,7 @@ const deviceStorageApi = {
    * @returns {Promise} Update result
    */
   updateDeviceFriendlyName: (deviceId, friendlyName) =>
-    ipcRenderer.invoke(
-      "storage:updateDeviceFriendlyName",
-      deviceId,
-      friendlyName,
-    ),
+    ipcRenderer.invoke("storage:updateDeviceFriendlyName", deviceId, friendlyName),
 
   /**
    * Get device by ID
@@ -55,16 +51,14 @@ const deviceStorageApi = {
    * @param {string} deviceId - Device ID
    * @returns {Promise} Display name
    */
-  getDeviceDisplayName: (deviceId) =>
-    ipcRenderer.invoke("storage:getDeviceDisplayName", deviceId),
+  getDeviceDisplayName: (deviceId) => ipcRenderer.invoke("storage:getDeviceDisplayName", deviceId),
 
   /**
    * Remove device from storage
    * @param {string} deviceId - Device ID
    * @returns {Promise} Removal result
    */
-  removeDevice: (deviceId) =>
-    ipcRenderer.invoke("storage:removeDevice", deviceId),
+  removeDevice: (deviceId) => ipcRenderer.invoke("storage:removeDevice", deviceId),
 };
 
 export default deviceStorageApi;

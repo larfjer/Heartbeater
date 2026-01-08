@@ -16,21 +16,15 @@ export function registerDeviceStorageHandlers(storage) {
     }
   });
 
-  ipcMain.handle(
-    "storage:updateDeviceFriendlyName",
-    (event, deviceId, friendlyName) => {
-      try {
-        const success = storage.updateDeviceFriendlyName(
-          deviceId,
-          friendlyName,
-        );
-        return { success };
-      } catch (error) {
-        log.error("Error updating friendly name:", error.message);
-        return { success: false, error: error.message };
-      }
-    },
-  );
+  ipcMain.handle("storage:updateDeviceFriendlyName", (event, deviceId, friendlyName) => {
+    try {
+      const success = storage.updateDeviceFriendlyName(deviceId, friendlyName);
+      return { success };
+    } catch (error) {
+      log.error("Error updating friendly name:", error.message);
+      return { success: false, error: error.message };
+    }
+  });
 
   ipcMain.handle("storage:getDevice", (event, deviceId) => {
     try {

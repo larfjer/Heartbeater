@@ -15,8 +15,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const { initializeScanButton } = await import("./src/renderer/scanner.js");
   const { initializeAddToGroupModal, initializeCreateNewGroup } =
     await import("./src/renderer/addToGroupModal.js");
-  const { initializeAddDeviceManually } =
-    await import("./src/renderer/addDeviceManuallyModal.js");
+  const { initializeAddDeviceManually } = await import("./src/renderer/addDeviceManuallyModal.js");
 
   // Initialize all UI components
   initializeTabs();
