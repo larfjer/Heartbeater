@@ -1,0 +1,40 @@
+{
+  "devices": {
+    "mk5pxugz5n0l0nx49dx": {
+      "name": "navimow_i.lan",
+      "ip": "192.168.86.26",
+      "mac": "7c:88:99:1d:08:81",
+      "manufacturer": "FN-LINK TECHNOLOGY Ltd.",
+      "id": "mk5pxugz5n0l0nx49dx",
+      "groupIds": ["mk5pyghkmyyv3k8e3ak"],
+      "addedAt": "2026-01-08T17:25:57.251Z"
+    },
+    "mk5pyvwml8kgm2yikwl": {
+      "name": "navimow_i.lan",
+      "ip": "192.168.86.26",
+      "mac": "7c:88:99:1d:08:81",
+      "manufacturer": "FN-LINK TECHNOLOGY Ltd.",
+      "id": "mk5pyvwml8kgm2yikwl",
+      "groupIds": ["mk5pyghkmyyv3k8e3ak"],
+      "addedAt": "2026-01-08T17:26:45.766Z"
+    }
+  },
+  "groups": {
+    "mk5pyghkmyyv3k8e3ak": {
+      "id": "mk5pyghkmyyv3k8e3ak",
+      "name": "Outdoor equipment",
+      "description": "All IoT stuff that lives outdoors",
+      "deviceIds": ["mk5pxugz5n0l0nx49dx", "mk5pyvwml8kgm2yikwl"],
+      "createdAt": "2026-01-08T17:26:25.784Z",
+      "updatedAt": "2026-01-08T17:26:25.784Z"
+    },
+    "mk5pz3iml7chqdzyvz": {
+      "id": "mk5pz3iml7chqdzyvz",
+      "name": "Test",
+      "description": "Test",
+      "deviceIds": [],
+      "createdAt": "2026-01-08T17:26:55.630Z",
+      "updatedAt": "2026-01-08T17:26:55.630Z"
+    }
+  }
+}

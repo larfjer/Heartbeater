@@ -1,0 +1,80 @@
+/**
+ * Global Layout Styles
+ * App bar, containers, and page structure
+ */
+
+.app-bar {
+  background-color: var(--md-sys-color-surface-container);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.app-bar .material-icons {
+  font-size: 28px;
+  color: var(--md-sys-color-primary);
+}
+
+.app-bar h1 {
+  margin: 0;
+  font-size: var(--font-size-headline);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+}
+
+.card {
+  background-color: var(--md-sys-color-surface-container);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.card-subtitle {
+  font-size: var(--font-size-body);
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0 0 var(--spacing-xl) 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-2xl) var(--spacing-xl);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.empty-state .material-icons {
+  font-size: 48px;
+  color: var(--md-sys-color-surface-variant);
+  margin-bottom: var(--spacing-lg);
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: var(--font-size-body);
+}
+
+.group-empty {
+  text-align: center;
+  padding: var(--spacing-2xl) var(--spacing-xl);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.group-empty .material-icons {
+  font-size: 48px;
+  color: var(--md-sys-color-surface-variant);
+  margin-bottom: var(--spacing-lg);
+}

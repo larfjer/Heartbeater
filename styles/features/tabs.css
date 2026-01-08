@@ -1,0 +1,49 @@
+/**
+ * Tabs Feature Styles
+ * Tab navigation and content switching
+ */
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--md-sys-color-outline);
+  background-color: var(--md-sys-color-surface);
+}
+
+.tab {
+  flex: 1;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  text-align: center;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--font-size-body);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.tab:hover {
+  background-color: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface);
+}
+
+.tab.active {
+  border-bottom-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-primary);
+  background-color: var(--md-sys-color-surface-container-high);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.tabs-divider {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}

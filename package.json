@@ -9,11 +9,11 @@
     "build": "electron-builder",
     "prepare": "husky install",
     "lint": "npm run lint:js && npm run lint:html",
-    "lint:js": "eslint --ext .js .",
-    "lint:html": "htmlhint index.html",
-    "lint:fix": "prettier --write . && eslint --fix --ext .js .",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "lint:js": "eslint --config ./config/eslint.config.js --ext .js .",
+    "lint:html": "htmlhint --config ./config/.htmlhintrc index.html",
+    "lint:fix": "prettier --config ./config/prettier.config.js --ignore-path ./config/.prettierignore --write . && eslint --config ./config/eslint.config.js --fix --ext .js .",
+    "format": "prettier --config ./config/prettier.config.js --ignore-path ./config/.prettierignore --write .",
+    "format:check": "prettier --config ./config/prettier.config.js --ignore-path ./config/.prettierignore --check .",
     "analyze": "npm run lint && npm run format:check"
   },
   "keywords": [],
@@ -32,5 +32,8 @@
   "dependencies": {
     "@network-utils/vendor-lookup": "^1.0.12",
     "local-devices": "^4.0.0"
+  },
+  "prettier": {
+    "ignoreUnknown": true
   }
 }

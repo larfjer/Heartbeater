@@ -1,0 +1,64 @@
+/**
+ * Badge Component Styles
+ * Manufacturer, status, and indicator badges
+ */
+
+.manufacturer-badge {
+  display: inline-block;
+  background-color: var(--md-sys-color-secondary);
+  color: var(--md-sys-color-surface);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: var(--font-size-label);
+  font-weight: 500;
+}
+
+.action-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  padding: 4px 8px;
+  border-radius: 50%;
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  min-width: 24px;
+  height: 24px;
+  line-height: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.device-groups-badge {
+  display: inline-block;
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: var(--font-size-label);
+  font-weight: 500;
+  margin-left: var(--spacing-sm);
+  margin-top: 4px;
+  line-height: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.group-badge {
+  display: inline-block;
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: var(--font-size-label);
+  margin-left: 4px;
+}
+
+.tab-badge {
+  display: inline-block;
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  margin-bottom: 2px;
+}

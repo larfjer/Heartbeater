@@ -1,0 +1,127 @@
+/**
+ * Table Component Styles
+ * Data tables and rows
+ */
+
+.md-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.md-table thead {
+  background-color: var(--md-sys-color-surface-container-high);
+}
+
+.md-table th {
+  text-align: left;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  font-size: var(--font-size-label);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--md-sys-color-on-surface-variant);
+  border-bottom: 1px solid var(--md-sys-color-outline);
+}
+
+.md-table td {
+  padding: var(--spacing-lg) var(--spacing-xl);
+  font-size: var(--font-size-body);
+  color: var(--md-sys-color-on-surface);
+  border-bottom: 1px solid var(--md-sys-color-surface-variant);
+}
+
+.md-table tbody tr {
+  transition: background-color var(--transition-fast);
+  cursor: pointer;
+}
+
+.md-table tbody tr:hover {
+  background-color: var(--md-sys-color-surface-container-high);
+}
+
+.md-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.device-name {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.device-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background-color: var(--md-sys-color-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.device-icon .material-icons {
+  font-size: 20px;
+  color: var(--md-sys-color-primary);
+}
+
+.device-name-text {
+  font-weight: 500;
+}
+
+.ip-address {
+  font-family: var(--font-family-mono);
+  background-color: var(--md-sys-color-surface-variant);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: var(--font-size-small);
+}
+
+.mac-address {
+  font-family: var(--font-family-mono);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--font-size-small);
+}
+
+.details-row {
+  display: none;
+  background-color: var(--md-sys-color-surface-container-high);
+}
+
+.details-row.expanded {
+  display: table-row;
+}
+
+.group-details-row {
+  display: none;
+  background-color: var(--md-sys-color-surface-container-high);
+}
+
+.group-details-row.expanded {
+  display: table-row;
+}
+
+.details-cell {
+  padding: var(--spacing-xl);
+  padding-top: 0;
+}
+
+.details-title {
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface-variant);
+  text-transform: uppercase;
+  margin-bottom: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+.details-title:first-child {
+  margin-top: 0;
+}
+
+.expand-icon {
+  transition: transform var(--transition-fast);
+}
+
+.expand-icon.expanded {
+  transform: rotate(180deg);
+}

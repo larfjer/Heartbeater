@@ -1,0 +1,92 @@
+/**
+ * Card Component Styles
+ * Results cards, group cards, and containers
+ */
+
+.results-card {
+  background-color: var(--md-sys-color-surface-container);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.results-header {
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-bottom: 1px solid var(--md-sys-color-outline);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.device-count {
+  font-size: var(--font-size-body);
+  color: var(--md-sys-color-on-surface-variant);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.device-count .material-icons {
+  font-size: 20px;
+  color: var(--md-sys-color-primary);
+}
+
+.group-card {
+  background-color: var(--md-sys-color-surface-container);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  border: 1px solid var(--md-sys-color-outline);
+  transition: all var(--transition-fast);
+}
+
+.group-card:hover {
+  background-color: var(--md-sys-color-surface-container-high);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.group-card-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+  margin: 0 0 var(--spacing-sm) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.group-card-title .material-icons {
+  color: var(--md-sys-color-primary);
+  font-size: 24px;
+}
+
+.group-card-subtitle {
+  font-size: var(--font-size-label);
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+}
+
+.service-item {
+  background-color: var(--md-sys-color-surface-container);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-small);
+  font-family: var(--font-family-mono);
+}
+
+.service-port {
+  color: var(--md-sys-color-primary);
+  font-weight: 500;
+}
+
+.service-name {
+  color: var(--md-sys-color-on-surface-variant);
+  margin-left: var(--spacing-sm);
+}
+
+.os-info {
+  background-color: var(--md-sys-color-surface-container);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-small);
+}

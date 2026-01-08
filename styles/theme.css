@@ -1,0 +1,73 @@
+/**
+ * Theme and Design Tokens
+ * Material Design 3 color scheme, typography, and spacing
+ */
+
+:root {
+  /* Primary Colors */
+  --md-sys-color-primary: #6750a4;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #eaddff;
+
+  /* Surface Colors */
+  --md-sys-color-surface: #1c1b1f;
+  --md-sys-color-surface-variant: #49454f;
+  --md-sys-color-surface-container: #211f26;
+  --md-sys-color-surface-container-high: #2b2930;
+
+  /* Text Colors */
+  --md-sys-color-on-surface: #e6e1e5;
+  --md-sys-color-on-surface-variant: #cac4d0;
+
+  /* Other Colors */
+  --md-sys-color-outline: #938f99;
+  --md-sys-color-secondary: #ccc2dc;
+  --md-sys-color-error: #f2b8b5;
+
+  /* Typography */
+  --font-family-primary: "Roboto", sans-serif;
+  --font-family-mono: "Roboto Mono", monospace;
+
+  /* Font Sizes */
+  --font-size-headline: 22px;
+  --font-size-title: 20px;
+  --font-size-body: 14px;
+  --font-size-label: 12px;
+  --font-size-small: 13px;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 48px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+  --radius-pill: 20px;
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+}
+
+/* Base Element Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family-primary);
+  margin: 0;
+  padding: 0;
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  min-height: 100vh;
+}

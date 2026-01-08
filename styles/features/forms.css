@@ -1,0 +1,39 @@
+/**
+ * Form Elements Styles
+ * Input fields, labels, and form groups
+ */
+
+.form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-label {
+  display: block;
+  font-size: var(--font-size-body);
+  font-weight: 500;
+  margin-bottom: var(--spacing-sm);
+  color: var(--md-sys-color-on-surface);
+}
+
+.form-input {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--radius-md);
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-body);
+  box-sizing: border-box;
+  transition: all var(--transition-fast);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--md-sys-color-primary);
+  box-shadow: 0 0 0 3px rgba(103, 80, 164, 0.1);
+}
+
+.form-input::placeholder {
+  color: var(--md-sys-color-on-surface-variant);
+}

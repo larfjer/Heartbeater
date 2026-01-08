@@ -1,0 +1,109 @@
+/**
+ * Button Component Styles
+ * Primary, secondary, and small action buttons
+ */
+
+/* Main Action Button */
+.md-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  border: none;
+  padding: 0 var(--spacing-xl);
+  height: 40px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-body);
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.md-button:hover {
+  box-shadow: var(--shadow-md);
+  filter: brightness(1.1);
+}
+
+.md-button:active {
+  transform: scale(0.98);
+}
+
+.md-button:disabled {
+  background-color: var(--md-sys-color-surface-variant);
+  color: var(--md-sys-color-on-surface-variant);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.md-button .material-icons {
+  font-size: 18px;
+}
+
+/* Modal Action Buttons */
+.modal-button {
+  padding: 0 16px;
+  height: 36px;
+  border: none;
+  border-radius: 18px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-body);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.modal-button-primary {
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+
+.modal-button-primary:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.modal-button-secondary {
+  background-color: var(--md-sys-color-surface-variant);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.modal-button-secondary:hover {
+  background-color: var(--md-sys-color-outline);
+}
+
+.modal-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Small Action Button */
+.add-to-group-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  border: none;
+  padding: 6px 12px;
+  height: 32px;
+  font-family: var(--font-family-primary);
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.add-to-group-btn:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.add-to-group-btn .material-icons {
+  font-size: 16px;
+}

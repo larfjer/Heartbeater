@@ -4,441 +4,35 @@
     <meta charset="UTF-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com"
+      content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Heartbeater</title>
+
+    <!-- External Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
       rel="stylesheet"
     />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <style>
-      :root {
-        --md-sys-color-primary: #6750a4;
-        --md-sys-color-on-primary: #ffffff;
-        --md-sys-color-primary-container: #eaddff;
-        --md-sys-color-surface: #1c1b1f;
-        --md-sys-color-surface-variant: #49454f;
-        --md-sys-color-on-surface: #e6e1e5;
-        --md-sys-color-on-surface-variant: #cac4d0;
-        --md-sys-color-outline: #938f99;
-        --md-sys-color-surface-container: #211f26;
-        --md-sys-color-surface-container-high: #2b2930;
-        --md-sys-color-secondary: #ccc2dc;
-        --md-sys-color-error: #f2b8b5;
-      }
 
-      * {
-        box-sizing: border-box;
-      }
+    <!-- Styles - Theme & Design Tokens -->
+    <link rel="stylesheet" href="styles/theme.css" />
 
-      body {
-        font-family: 'Roboto', sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: var(--md-sys-color-surface);
-        color: var(--md-sys-color-on-surface);
-        min-height: 100vh;
-      }
+    <!-- Styles - Global Layout -->
+    <link rel="stylesheet" href="styles/layout.css" />
 
-      .app-bar {
-        background-color: var(--md-sys-color-surface-container);
-        padding: 16px 24px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      }
+    <!-- Styles - Components -->
+    <link rel="stylesheet" href="styles/components/buttons.css" />
+    <link rel="stylesheet" href="styles/components/cards.css" />
+    <link rel="stylesheet" href="styles/components/tables.css" />
+    <link rel="stylesheet" href="styles/components/badges.css" />
+    <link rel="stylesheet" href="styles/components/modals.css" />
 
-      .app-bar .material-icons {
-        font-size: 28px;
-        color: var(--md-sys-color-primary);
-      }
-
-      .app-bar h1 {
-        margin: 0;
-        font-size: 22px;
-        font-weight: 400;
-        letter-spacing: 0;
-      }
-
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 24px;
-      }
-
-      .card {
-        background-color: var(--md-sys-color-surface-container);
-        border-radius: 12px;
-        padding: 24px;
-        margin-bottom: 24px;
-      }
-
-      .card-title {
-        font-size: 16px;
-        font-weight: 500;
-        color: var(--md-sys-color-on-surface);
-        margin: 0 0 8px 0;
-      }
-
-      .card-subtitle {
-        font-size: 14px;
-        color: var(--md-sys-color-on-surface-variant);
-        margin: 0 0 24px 0;
-      }
-
-      .md-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        background-color: var(--md-sys-color-primary);
-        color: var(--md-sys-color-on-primary);
-        border: none;
-        padding: 0 24px;
-        height: 40px;
-        font-family: 'Roboto', sans-serif;
-        font-size: 14px;
-        font-weight: 500;
-        letter-spacing: 0.1px;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-      }
-
-      .md-button:hover {
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-        filter: brightness(1.1);
-      }
-
-      .md-button:active {
-        transform: scale(0.98);
-      }
-
-      .md-button:disabled {
-        background-color: var(--md-sys-color-surface-variant);
-        color: var(--md-sys-color-on-surface-variant);
-        cursor: not-allowed;
-        box-shadow: none;
-      }
-
-      .md-button .material-icons {
-        font-size: 18px;
-      }
-
-      #status {
-        color: var(--md-sys-color-on-surface-variant);
-        font-size: 14px;
-        margin-top: 16px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .spinner {
-        width: 20px;
-        height: 20px;
-        border: 2px solid var(--md-sys-color-surface-variant);
-        border-top-color: var(--md-sys-color-primary);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      .results-card {
-        background-color: var(--md-sys-color-surface-container);
-        border-radius: 12px;
-        overflow: hidden;
-      }
-
-      .results-header {
-        padding: 16px 24px;
-        border-bottom: 1px solid var(--md-sys-color-outline);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-
-      .device-count {
-        font-size: 14px;
-        color: var(--md-sys-color-on-surface-variant);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .device-count .material-icons {
-        font-size: 20px;
-        color: var(--md-sys-color-primary);
-      }
-
-      .md-table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      .md-table thead {
-        background-color: var(--md-sys-color-surface-container-high);
-      }
-
-      .md-table th {
-        text-align: left;
-        padding: 16px 24px;
-        font-size: 12px;
-        font-weight: 500;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        color: var(--md-sys-color-on-surface-variant);
-        border-bottom: 1px solid var(--md-sys-color-outline);
-      }
-
-      .md-table td {
-        padding: 16px 24px;
-        font-size: 14px;
-        color: var(--md-sys-color-on-surface);
-        border-bottom: 1px solid var(--md-sys-color-surface-variant);
-      }
-
-      .md-table tbody tr {
-        transition: background-color 0.2s ease;
-        cursor: pointer;
-      }
-
-      .md-table tbody tr:hover {
-        background-color: var(--md-sys-color-surface-container-high);
-      }
-
-      .md-table tbody tr:last-child td {
-        border-bottom: none;
-      }
-
-      .manufacturer-badge {
-        display: inline-block;
-        background-color: var(--md-sys-color-secondary);
-        color: var(--md-sys-color-surface);
-        padding: 4px 12px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 500;
-      }
-
-      .details-row {
-        display: none;
-        background-color: var(--md-sys-color-surface-container-high);
-      }
-
-      .details-row.expanded {
-        display: table-row;
-      }
-
-      .details-cell {
-        padding: 24px;
-        padding-top: 0;
-      }
-
-      .details-title {
-        font-size: 12px;
-        font-weight: 600;
-        color: var(--md-sys-color-on-surface-variant);
-        text-transform: uppercase;
-        margin-bottom: 12px;
-        margin-top: 16px;
-      }
-
-      .details-title:first-child {
-        margin-top: 0;
-      }
-
-      .service-item {
-        background-color: var(--md-sys-color-surface-container);
-        padding: 12px;
-        border-radius: 6px;
-        margin-bottom: 8px;
-        font-size: 13px;
-        font-family: 'Roboto Mono', monospace;
-      }
-
-      .service-port {
-        color: var(--md-sys-color-primary);
-        font-weight: 500;
-      }
-
-      .service-name {
-        color: var(--md-sys-color-on-surface-variant);
-        margin-left: 8px;
-      }
-
-      .os-info {
-        background-color: var(--md-sys-color-surface-container);
-        padding: 12px;
-        border-radius: 6px;
-        font-family: 'Roboto Mono', monospace;
-        font-size: 13px;
-      }
-
-      .expand-icon {
-        transition: transform 0.2s ease;
-      }
-
-      .expand-icon.expanded {
-        transform: rotate(180deg);
-      }
-
-      .device-name {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .device-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 20px;
-        background-color: var(--md-sys-color-primary-container);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .device-icon .material-icons {
-        font-size: 20px;
-        color: var(--md-sys-color-primary);
-      }
-
-      .device-name-text {
-        font-weight: 500;
-      }
-
-      .ip-address {
-        font-family: 'Roboto Mono', monospace;
-        background-color: var(--md-sys-color-surface-variant);
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 13px;
-      }
-
-      .mac-address {
-        font-family: 'Roboto Mono', monospace;
-        color: var(--md-sys-color-on-surface-variant);
-        font-size: 13px;
-      }
-
-      .empty-state {
-        text-align: center;
-        padding: 48px 24px;
-        color: var(--md-sys-color-on-surface-variant);
-      }
-
-      .empty-state .material-icons {
-        font-size: 48px;
-        color: var(--md-sys-color-surface-variant);
-        margin-bottom: 16px;
-      }
-
-      .empty-state p {
-        margin: 0;
-        font-size: 14px;
-      }
-
-      .tabs {
-        display: flex;
-        border-bottom: 1px solid var(--md-sys-color-outline);
-        background-color: var(--md-sys-color-surface);
-      }
-
-      .tab {
-        flex: 1;
-        padding: 16px 24px;
-        text-align: center;
-        cursor: pointer;
-        border-bottom: 3px solid transparent;
-        color: var(--md-sys-color-on-surface-variant);
-        font-size: 14px;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        user-select: none;
-      }
-
-      .tab:hover {
-        background-color: var(--md-sys-color-surface-container);
-        color: var(--md-sys-color-on-surface);
-      }
-
-      .tab.active {
-        border-bottom-color: var(--md-sys-color-primary);
-        color: var(--md-sys-color-primary);
-        background-color: var(--md-sys-color-surface-container-high);
-      }
-
-      .tab-content {
-        display: none;
-      }
-
-      .tab-content.active {
-        display: block;
-      }
-
-      .group-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 16px;
-        margin-top: 20px;
-      }
-
-      .group-card {
-        background-color: var(--md-sys-color-surface-container);
-        border-radius: 12px;
-        padding: 20px;
-        border: 1px solid var(--md-sys-color-outline);
-        transition: all 0.2s ease;
-      }
-
-      .group-card:hover {
-        background-color: var(--md-sys-color-surface-container-high);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-      }
-
-      .group-card-title {
-        font-size: 16px;
-        font-weight: 500;
-        color: var(--md-sys-color-on-surface);
-        margin: 0 0 8px 0;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .group-card-title .material-icons {
-        color: var(--md-sys-color-primary);
-        font-size: 24px;
-      }
-
-      .group-card-subtitle {
-        font-size: 12px;
-        color: var(--md-sys-color-on-surface-variant);
-        margin: 0;
-      }
-
-      .group-empty {
-        text-align: center;
-        padding: 48px 24px;
-        color: var(--md-sys-color-on-surface-variant);
-      }
-
-      .group-empty .material-icons {
-        font-size: 48px;
-        color: var(--md-sys-color-surface-variant);
-        margin-bottom: 16px;
-      }
-    </style>
+    <!-- Styles - Features -->
+    <link rel="stylesheet" href="styles/features/tabs.css" />
+    <link rel="stylesheet" href="styles/features/forms.css" />
+    <link rel="stylesheet" href="styles/features/scanner.css" />
   </head>
   <body>
     <header class="app-bar">
@@ -461,7 +55,7 @@
           style="font-size: 18px; vertical-align: middle; margin-right: 8px"
           >group</span
         >
-        Device Group
+        Device Groups
       </div>
     </nav>
 
@@ -488,11 +82,162 @@
         <div class="card">
           <h2 class="card-title">Device Groups</h2>
           <p class="card-subtitle">Organize and manage device groups</p>
+          <button
+            id="addDeviceManuallyBtn"
+            style="
+              margin-top: 16px;
+              background-color: var(--md-sys-color-primary);
+              color: var(--md-sys-color-on-primary);
+              border: none;
+              padding: 10px 24px;
+              border-radius: 6px;
+              cursor: pointer;
+              font-weight: 500;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            <span class="material-icons" style="font-size: 20px">add</span>
+            Add Device Manually
+          </button>
         </div>
 
         <div id="groups-container"></div>
       </div>
     </main>
+
+    <!-- Add to Group Modal -->
+    <div id="addToGroupModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">Add Device to Group</div>
+        <div class="modal-body">
+          <div class="group-list" id="groupList"></div>
+          <div
+            style="
+              border-top: 1px solid var(--md-sys-color-outline);
+              padding-top: 16px;
+              margin-top: 16px;
+            "
+          >
+            <details>
+              <summary
+                style="cursor: pointer; color: var(--md-sys-color-primary); font-weight: 500"
+              >
+                Create new group
+              </summary>
+              <div style="margin-top: 16px">
+                <div class="form-group">
+                  <label class="form-label">Group Name</label>
+                  <input
+                    type="text"
+                    id="newGroupName"
+                    class="form-input"
+                    placeholder="Enter group name"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Description (optional)</label>
+                  <input
+                    type="text"
+                    id="newGroupDescription"
+                    class="form-input"
+                    placeholder="Enter description"
+                  />
+                </div>
+                <button
+                  id="createNewGroupBtn"
+                  class="modal-button modal-button-primary"
+                  style="width: 100%"
+                >
+                  Create Group
+                </button>
+              </div>
+            </details>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="addToGroupCancel" class="modal-button modal-button-secondary">Cancel</button>
+          <button id="addToGroupConfirm" class="modal-button modal-button-primary">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Device Manually Modal -->
+    <div id="addDeviceManuallyModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">Add Device Manually</div>
+        <div class="modal-body">
+          <div class="form-group" style="display: flex; align-items: center; gap: 12px">
+            <label class="form-label" style="flex: 0 0 120px; margin: 0">Device Name *</label>
+            <input
+              type="text"
+              id="manualDeviceName"
+              class="form-input"
+              placeholder="e.g., My Device"
+              style="flex: 1"
+            />
+          </div>
+
+          <div class="form-group" style="display: flex; align-items: center; gap: 12px">
+            <label class="form-label" style="flex: 0 0 120px; margin: 0">IP Address *</label>
+            <input
+              type="text"
+              id="manualDeviceIp"
+              class="form-input"
+              placeholder="e.g., 192.168.1.100"
+              style="flex: 1"
+            />
+          </div>
+
+          <div class="form-group" style="display: flex; align-items: center; gap: 12px">
+            <label class="form-label" style="flex: 0 0 120px; margin: 0">MAC Address</label>
+            <input
+              type="text"
+              id="manualDeviceMac"
+              class="form-input"
+              placeholder="e.g., 00:11:22:33:44:55"
+              style="flex: 1"
+            />
+          </div>
+
+          <div class="form-group" style="display: flex; align-items: center; gap: 12px">
+            <label class="form-label" style="flex: 0 0 120px; margin: 0">Manufacturer</label>
+            <input
+              type="text"
+              id="manualDeviceManufacturer"
+              class="form-input"
+              placeholder="e.g., Apple Inc."
+              style="flex: 1"
+            />
+          </div>
+
+          <div class="form-group" style="display: flex; align-items: center; gap: 12px">
+            <label class="form-label" style="flex: 0 0 120px; margin: 0">Friendly Name</label>
+            <input
+              type="text"
+              id="manualDeviceFriendlyName"
+              class="form-input"
+              placeholder="e.g., Living Room TV"
+              style="flex: 1"
+            />
+          </div>
+
+          <div class="form-group" style="display: flex; flex-direction: column; gap: 12px">
+            <label class="form-label" style="margin: 0">Select Groups *</label>
+            <div class="group-list" id="manualDeviceGroupList"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="addDeviceManuallyCancel" class="modal-button modal-button-secondary">
+            Cancel
+          </button>
+          <button id="addDeviceManuallyConfirm" class="modal-button modal-button-primary">
+            Save Device
+          </button>
+        </div>
+      </div>
+    </div>
 
     <script src="renderer.js"></script>
   </body>
