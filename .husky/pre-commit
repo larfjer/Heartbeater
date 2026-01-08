@@ -1,6 +1,28 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-# Run format
+# Step 1: Run prettier formatting
 npm run format
-echo "✅ Formatting complete!"
+if [ $? -ne 0 ]; then
+  echo "❌ Format failed. Commit aborted."
+  exit 1
+fi
+
+# Step 2: Run eslint fixes (now that prettier has formatted)
+npx eslint --config ./config/eslint.config.js --fix --ext .js .
+if [ $? -ne 0 ]; then
+  echo "❌ ESLint fix failed. Commit aborted."
+  exit 1
+fi
+
+# Step 3: Re-add fixed files to staging
+git add .
+
+# Step 4: Run full lint check (should pass now)
+npm run lint
+if [ $? -ne 0 ]; then
+  echo "❌ Lint check failed. Commit aborted."
+  exit 1
+fi
+
+echo "✅ All checks passed!"

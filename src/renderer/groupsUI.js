@@ -10,7 +10,8 @@ export async function renderGroups() {
   try {
     const result = await window.api.storage.getAllGroups();
     if (!result.success) {
-      groupsContainer.innerHTML = '<div class="group-empty"><p>Error loading groups</p></div>';
+      groupsContainer.innerHTML =
+        '<div class="group-empty"><p>Error loading groups</p></div>';
       return;
     }
 
@@ -48,7 +49,9 @@ export async function renderGroups() {
 
     for (let index = 0; index < groups.length; index++) {
       const group = groups[index];
-      const devicesResult = await window.api.storage.getDevicesInGroup(group.id);
+      const devicesResult = await window.api.storage.getDevicesInGroup(
+        group.id,
+      );
       const devices = devicesResult.success ? devicesResult.devices : [];
 
       html += `
@@ -83,7 +86,9 @@ export async function renderGroups() {
     document.querySelectorAll(".group-row").forEach((row) => {
       row.addEventListener("click", async (_e) => {
         const index = row.dataset.index;
-        const detailsRow = document.querySelector(`.group-details-row[data-index="${index}"]`);
+        const detailsRow = document.querySelector(
+          `.group-details-row[data-index="${index}"]`,
+        );
         const icon = row.querySelector(".expand-icon");
         const groupId = row.dataset.groupId;
 
@@ -92,7 +97,8 @@ export async function renderGroups() {
 
         if (detailsRow.classList.contains("expanded")) {
           // Load and display devices in this group
-          const devicesResult = await window.api.storage.getDevicesInGroup(groupId);
+          const devicesResult =
+            await window.api.storage.getDevicesInGroup(groupId);
           const devices = devicesResult.success ? devicesResult.devices : [];
           const devicesList = detailsRow.querySelector(".group-devices-list");
 
@@ -100,10 +106,14 @@ export async function renderGroups() {
             devicesList.innerHTML =
               '<p style="color: var(--md-sys-color-on-surface-variant); margin: 0;">No devices in this group</p>';
           } else {
-            let devicesHtml = '<div style="display: flex; flex-direction: column; gap: 8px;">';
+            let devicesHtml =
+              '<div style="display: flex; flex-direction: column; gap: 8px;">';
             devices.forEach((device) => {
-              const displayName = device.friendlyName || device.name || "(Unknown)";
-              const originalName = device.friendlyName ? ` (${device.name})` : "";
+              const displayName =
+                device.friendlyName || device.name || "(Unknown)";
+              const originalName = device.friendlyName
+                ? ` (${device.name})`
+                : "";
               devicesHtml += `
                 <div style="padding: 12px; background-color: var(--md-sys-color-surface); border-radius: 6px; border-left: 4px solid var(--md-sys-color-primary);">
                   <div style="display: flex; align-items: center; gap: 12px;">
@@ -127,30 +137,39 @@ export async function renderGroups() {
             devicesList.innerHTML = devicesHtml;
 
             // Add event listeners for remove buttons
-            devicesList.querySelectorAll(".remove-device-btn").forEach((btn) => {
-              btn.addEventListener("click", async (e) => {
-                e.stopPropagation();
-                const deviceId = btn.dataset.deviceId;
-                const gId = btn.dataset.groupId;
+            devicesList
+              .querySelectorAll(".remove-device-btn")
+              .forEach((btn) => {
+                btn.addEventListener("click", async (e) => {
+                  e.stopPropagation();
+                  const deviceId = btn.dataset.deviceId;
+                  const gId = btn.dataset.groupId;
 
-                const result = await window.api.storage.removeDeviceFromGroup(deviceId, gId);
-                if (result.success) {
-                  // Refresh the group display
-                  const updatedDevicesResult = await window.api.storage.getDevicesInGroup(gId);
-                  const updatedDevices = updatedDevicesResult.success
-                    ? updatedDevicesResult.devices
-                    : [];
+                  const result = await window.api.storage.removeDeviceFromGroup(
+                    deviceId,
+                    gId,
+                  );
+                  if (result.success) {
+                    // Refresh the group display
+                    const updatedDevicesResult =
+                      await window.api.storage.getDevicesInGroup(gId);
+                    const updatedDevices = updatedDevicesResult.success
+                      ? updatedDevicesResult.devices
+                      : [];
 
-                  if (updatedDevices.length === 0) {
-                    devicesList.innerHTML =
-                      '<p style="color: var(--md-sys-color-on-surface-variant); margin: 0;">No devices in this group</p>';
-                  } else {
-                    let updatedHtml =
-                      '<div style="display: flex; flex-direction: column; gap: 8px;">';
-                    updatedDevices.forEach((d) => {
-                      const dDisplayName = d.friendlyName || d.name || "(Unknown)";
-                      const dOriginalName = d.friendlyName ? ` (${d.name})` : "";
-                      updatedHtml += `
+                    if (updatedDevices.length === 0) {
+                      devicesList.innerHTML =
+                        '<p style="color: var(--md-sys-color-on-surface-variant); margin: 0;">No devices in this group</p>';
+                    } else {
+                      let updatedHtml =
+                        '<div style="display: flex; flex-direction: column; gap: 8px;">';
+                      updatedDevices.forEach((d) => {
+                        const dDisplayName =
+                          d.friendlyName || d.name || "(Unknown)";
+                        const dOriginalName = d.friendlyName
+                          ? ` (${d.name})`
+                          : "";
+                        updatedHtml += `
                         <div style="padding: 12px; background-color: var(--md-sys-color-surface); border-radius: 6px; border-left: 4px solid var(--md-sys-color-primary);">
                           <div style="display: flex; align-items: center; gap: 12px;">
                             <span class="material-icons" style="color: var(--md-sys-color-on-surface-variant);">devices</span>
@@ -168,27 +187,30 @@ export async function renderGroups() {
                           </div>
                         </div>
                       `;
-                    });
-                    updatedHtml += "</div>";
-                    devicesList.innerHTML = updatedHtml;
+                      });
+                      updatedHtml += "</div>";
+                      devicesList.innerHTML = updatedHtml;
 
-                    // Re-attach event listeners to new buttons
-                    devicesList.querySelectorAll(".remove-device-btn").forEach((newBtn) => {
-                      newBtn.addEventListener("click", arguments.callee);
-                    });
+                      // Re-attach event listeners to new buttons
+                      devicesList
+                        .querySelectorAll(".remove-device-btn")
+                        .forEach((newBtn) => {
+                          newBtn.addEventListener("click", arguments.callee);
+                        });
+                    }
                   }
-                }
-              });
+                });
 
-              // Add hover effect
-              btn.addEventListener("mouseenter", () => {
-                btn.style.backgroundColor = "var(--md-sys-color-error-container)";
-              });
+                // Add hover effect
+                btn.addEventListener("mouseenter", () => {
+                  btn.style.backgroundColor =
+                    "var(--md-sys-color-error-container)";
+                });
 
-              btn.addEventListener("mouseleave", () => {
-                btn.style.backgroundColor = "transparent";
+                btn.addEventListener("mouseleave", () => {
+                  btn.style.backgroundColor = "transparent";
+                });
               });
-            });
           }
         }
       });

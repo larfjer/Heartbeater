@@ -12,7 +12,10 @@
 import { app } from "electron";
 import GroupStorageService from "./storage.js";
 import { log } from "./src/main/logger.js";
-import { registerAppLifecycleHandlers, initializeApp } from "./src/main/appLifecycle.js";
+import {
+  registerAppLifecycleHandlers,
+  initializeApp,
+} from "./src/main/appLifecycle.js";
 import { registerScannerHandlers } from "./src/main/ipcScannerHandlers.js";
 import { registerDeviceStorageHandlers } from "./src/main/ipcDeviceHandlers.js";
 import { registerGroupStorageHandlers } from "./src/main/ipcGroupHandlers.js";

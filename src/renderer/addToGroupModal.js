@@ -22,7 +22,9 @@ export async function openAddToGroupModal(device) {
     const groups = result.groups;
     const deviceGroups = await window.api.storage.getGroupsForDevice(device.id);
     console.log("[Renderer] Device groups result:", deviceGroups);
-    const deviceGroupIds = deviceGroups.success ? deviceGroups.groups.map((g) => g.id) : [];
+    const deviceGroupIds = deviceGroups.success
+      ? deviceGroups.groups.map((g) => g.id)
+      : [];
     console.log("[Renderer] Device group IDs:", deviceGroupIds);
 
     // Pre-select groups the device is already in and store as original
@@ -30,7 +32,10 @@ export async function openAddToGroupModal(device) {
       appState.selectedGroupIds.add(groupId);
       appState.originalGroupIds.add(groupId);
     });
-    console.log("[Renderer] Selected group IDs after pre-select:", appState.selectedGroupIds);
+    console.log(
+      "[Renderer] Selected group IDs after pre-select:",
+      appState.selectedGroupIds,
+    );
     console.log("[Renderer] Original group IDs:", appState.originalGroupIds);
 
     if (groups.length === 0) {
@@ -68,7 +73,10 @@ export async function openAddToGroupModal(device) {
             appState.selectedGroupIds.delete(groupId);
             checkbox.parentElement.classList.remove("selected");
           }
-          console.log("[Renderer] Selected groups updated:", appState.selectedGroupIds);
+          console.log(
+            "[Renderer] Selected groups updated:",
+            appState.selectedGroupIds,
+          );
         });
       });
     }
@@ -100,11 +108,15 @@ export function initializeAddToGroupModal() {
     try {
       // Find groups to add (newly selected)
       const groupsToAdd = new Set(
-        [...appState.selectedGroupIds].filter((id) => !appState.originalGroupIds.has(id))
+        [...appState.selectedGroupIds].filter(
+          (id) => !appState.originalGroupIds.has(id),
+        ),
       );
       // Find groups to remove (were selected before, but not now)
       const groupsToRemove = new Set(
-        [...appState.originalGroupIds].filter((id) => !appState.selectedGroupIds.has(id))
+        [...appState.originalGroupIds].filter(
+          (id) => !appState.selectedGroupIds.has(id),
+        ),
       );
 
       console.log("[Renderer] Groups to add:", groupsToAdd);
@@ -115,7 +127,7 @@ export function initializeAddToGroupModal() {
         console.log("[Renderer] Removing device from group:", groupId);
         const result = await window.api.storage.removeDeviceFromGroup(
           appState.selectedDeviceForGroup.id,
-          groupId
+          groupId,
         );
 
         if (!result.success) {
@@ -129,7 +141,7 @@ export function initializeAddToGroupModal() {
         console.log("[Renderer] Adding device to group:", groupId);
         const result = await window.api.storage.addDeviceToGroup(
           appState.selectedDeviceForGroup.id,
-          groupId
+          groupId,
         );
 
         if (!result.success) {
@@ -210,7 +222,10 @@ export function initializeCreateNewGroup() {
               appState.selectedGroupIds.delete(groupId);
               checkbox.parentElement.classList.remove("selected");
             }
-            console.log("[Renderer] Selected groups updated:", appState.selectedGroupIds);
+            console.log(
+              "[Renderer] Selected groups updated:",
+              appState.selectedGroupIds,
+            );
           });
         });
       }

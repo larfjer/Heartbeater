@@ -8,16 +8,23 @@ const scannerApi = {
 const deviceStorageApi = {
   addDevice: (device) => ipcRenderer.invoke("storage:addDevice", device),
   updateDeviceFriendlyName: (deviceId, friendlyName) =>
-    ipcRenderer.invoke("storage:updateDeviceFriendlyName", deviceId, friendlyName),
+    ipcRenderer.invoke(
+      "storage:updateDeviceFriendlyName",
+      deviceId,
+      friendlyName,
+    ),
   getDevice: (deviceId) => ipcRenderer.invoke("storage:getDevice", deviceId),
   getDeviceByMac: (mac) => ipcRenderer.invoke("storage:getDeviceByMac", mac),
   getAllDevices: () => ipcRenderer.invoke("storage:getAllDevices"),
-  getDeviceDisplayName: (deviceId) => ipcRenderer.invoke("storage:getDeviceDisplayName", deviceId),
-  removeDevice: (deviceId) => ipcRenderer.invoke("storage:removeDevice", deviceId),
+  getDeviceDisplayName: (deviceId) =>
+    ipcRenderer.invoke("storage:getDeviceDisplayName", deviceId),
+  removeDevice: (deviceId) =>
+    ipcRenderer.invoke("storage:removeDevice", deviceId),
 };
 
 const groupStorageApi = {
-  createGroup: (name, description) => ipcRenderer.invoke("storage:createGroup", name, description),
+  createGroup: (name, description) =>
+    ipcRenderer.invoke("storage:createGroup", name, description),
   updateGroup: (groupId, name, description) =>
     ipcRenderer.invoke("storage:updateGroup", groupId, name, description),
   getGroup: (groupId) => ipcRenderer.invoke("storage:getGroup", groupId),
@@ -30,8 +37,10 @@ const groupDeviceRelationApi = {
     ipcRenderer.invoke("storage:addDeviceToGroup", deviceId, groupId),
   removeDeviceFromGroup: (deviceId, groupId) =>
     ipcRenderer.invoke("storage:removeDeviceFromGroup", deviceId, groupId),
-  getDevicesInGroup: (groupId) => ipcRenderer.invoke("storage:getDevicesInGroup", groupId),
-  getGroupsForDevice: (deviceId) => ipcRenderer.invoke("storage:getGroupsForDevice", deviceId),
+  getDevicesInGroup: (groupId) =>
+    ipcRenderer.invoke("storage:getDevicesInGroup", groupId),
+  getGroupsForDevice: (deviceId) =>
+    ipcRenderer.invoke("storage:getGroupsForDevice", deviceId),
 };
 
 contextBridge.exposeInMainWorld("api", {
