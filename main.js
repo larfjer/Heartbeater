@@ -6,7 +6,7 @@ import vendorLookup from '@network-utils/vendor-lookup';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
-const { lookupMac } = vendorLookup;
+const lookupMac = vendorLookup.toVendor || vendorLookup.default || vendorLookup;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -88,11 +88,12 @@ async function scanDeviceDetails(ip) {
 
 function createWindow() {
   log.info('Creating main window');
+  const preloadPath = path.resolve(__dirname, 'preload.js');
   const mainWindow = new BrowserWindow({
     width: 900,
     height: 700,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: preloadPath,
       contextIsolation: true,
       nodeIntegration: false,
     },

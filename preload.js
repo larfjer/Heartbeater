@@ -1,18 +1,24 @@
-import { contextBridge, ipcRenderer } from 'electron';
+const { contextBridge, ipcRenderer } = require('electron');
 
-console.log('[Preload] Initializing preload script');
+console.log('[Preload] Script file is loading...');
 
-// Expose protected methods that allow the renderer process to use
-// the ipcRenderer without exposing the entire object
-contextBridge.exposeInMainWorld('api', {
-  scanNetwork: () => {
-    console.log('[Preload] scanNetwork called, invoking IPC');
-    return ipcRenderer.invoke('scan-network');
-  },
-  scanDeviceDetails: (ip) => {
-    console.log('[Preload] scanDeviceDetails called for', ip);
-    return ipcRenderer.invoke('scan-device-details', ip);
-  },
-});
+try {
+  console.log('[Preload] Initializing preload script');
 
-console.log('[Preload] API exposed to renderer');
+  // Expose protected methods that allow the renderer process to use
+  // the ipcRenderer without exposing the entire object
+  contextBridge.exposeInMainWorld('api', {
+    scanNetwork: () => {
+      console.log('[Preload] scanNetwork called, invoking IPC');
+      return ipcRenderer.invoke('scan-network');
+    },
+    scanDeviceDetails: (ip) => {
+      console.log('[Preload] scanDeviceDetails called for', ip);
+      return ipcRenderer.invoke('scan-device-details', ip);
+    },
+  });
+
+  console.log('[Preload] API exposed to renderer');
+} catch (error) {
+  console.error('[Preload] Error:', error);
+}
