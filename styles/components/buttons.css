@@ -108,6 +108,71 @@
   font-size: 16px;
 }
 
+/* Ping Control Buttons */
+.start-ping-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  border: none;
+  padding: 6px 12px;
+  height: 32px;
+  font-family: var(--font-family-primary);
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.start-ping-btn:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  filter: brightness(1.1);
+}
+
+.start-ping-btn:active {
+  transform: scale(0.98);
+}
+
+.start-ping-btn .material-icons {
+  font-size: 16px;
+}
+
+.stop-ping-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background-color: var(--md-sys-color-error);
+  color: var(--md-sys-color-on-error);
+  border: none;
+  padding: 6px 12px;
+  height: 32px;
+  font-family: var(--font-family-primary);
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.stop-ping-btn:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  filter: brightness(1.1);
+}
+
+.stop-ping-btn:active {
+  transform: scale(0.98);
+}
+
+.stop-ping-btn .material-icons {
+  font-size: 16px;
+}
+
 /* Remove/Delete Button */
 .remove-device-btn {
   display: inline-flex;

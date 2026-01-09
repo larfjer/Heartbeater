@@ -26,5 +26,5 @@ export function registerAppLifecycleHandlers() {
 
 export function initializeApp(_storage) {
   log.info("App is ready");
-  createWindow();
+  return createWindow();
 }

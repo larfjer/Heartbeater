@@ -29,14 +29,14 @@ export async function initializeScanButton() {
         appState.currentScannedDevices = response.devices;
         await renderDeviceScan(response.devices);
       } else {
-        domElements.status.innerHTML = `<span class="material-icons" style="color: var(--md-sys-color-error)">error</span> Error: ${response.error}`;
+        domElements.status.innerHTML = `<span class="material-icons error-icon">error</span> Error: ${response.error}`;
       }
     } catch (error) {
       console.error("[Renderer] Error:", error);
       scanBtn.disabled = false;
       scanBtn.innerHTML =
         '<span class="material-icons">radar</span> Scan Network';
-      domElements.status.innerHTML = `<span class="material-icons" style="color: var(--md-sys-color-error)">error</span> Error: ${error.message}`;
+      domElements.status.innerHTML = `<span class="material-icons error-icon">error</span> Error: ${error.message}`;
     }
   });
 }

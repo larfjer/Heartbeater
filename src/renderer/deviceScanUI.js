@@ -1,4 +1,116 @@
 /**
+ * Sets up ping control button event listeners using event delegation
+ * Works with dynamically added buttons since it listens on the document
+ */
+export function setupPingControlListeners() {
+  // Use event delegation on document to handle dynamically added buttons
+  document.addEventListener("click", async (e) => {
+    const startBtn = e.target.closest(".start-ping-btn");
+    const stopBtn = e.target.closest(".stop-ping-btn");
+
+    if (startBtn) {
+      console.log("[Debug] Start ping button clicked");
+      e.stopPropagation();
+      const deviceId = startBtn.dataset.deviceId;
+      const deviceIp = startBtn.dataset.deviceIp;
+      const pingIntervalMs = 5000; // 5 seconds
+
+      try {
+        const result = await window.api.ping.start(
+          deviceId,
+          deviceIp,
+          pingIntervalMs,
+        );
+        if (result.success) {
+          console.log(`[Renderer] Started pinging device ${deviceId}`);
+          // Hide start button, show stop button
+          startBtn.classList.add("hidden");
+          const stopBtnEl = document.querySelector(
+            `.stop-ping-btn[data-device-id="${deviceId}"]`,
+          );
+          if (stopBtnEl) stopBtnEl.classList.remove("hidden");
+
+          // Show status indicator
+          const statusIndicator = document.querySelector(
+            `.ping-status-indicator[data-device-id="${deviceId}"]`,
+          );
+          if (statusIndicator) statusIndicator.classList.remove("hidden");
+        } else {
+          console.error(`Failed to start ping: ${result.error}`);
+          alert(`Failed to start ping: ${result.error}`);
+        }
+      } catch (error) {
+        console.error("[Renderer] Error starting ping:", error);
+        alert("Error starting ping: " + error.message);
+      }
+    }
+
+    if (stopBtn) {
+      console.log("[Debug] Stop ping button clicked");
+      e.stopPropagation();
+      const deviceId = stopBtn.dataset.deviceId;
+
+      try {
+        const result = await window.api.ping.stop(deviceId);
+        if (result.success) {
+          console.log(`[Renderer] Stopped pinging device ${deviceId}`);
+          // Hide stop button, show start button
+          stopBtn.classList.add("hidden");
+          const startBtnEl = document.querySelector(
+            `.start-ping-btn[data-device-id="${deviceId}"]`,
+          );
+          if (startBtnEl) startBtnEl.classList.remove("hidden");
+
+          // Hide status indicator
+          const statusIndicator = document.querySelector(
+            `.ping-status-indicator[data-device-id="${deviceId}"]`,
+          );
+          if (statusIndicator) statusIndicator.classList.add("hidden");
+        } else {
+          console.error(`Failed to stop ping: ${result.error}`);
+          alert(`Failed to stop ping: ${result.error}`);
+        }
+      } catch (error) {
+        console.error("[Renderer] Error stopping ping:", error);
+        alert("Error stopping ping: " + error.message);
+      }
+    }
+  });
+
+  // Set up listener for ping status updates
+  window.api.ping.onStatusUpdated((data) => {
+    const { deviceId, status, responseTime } = data;
+    const statusDot = document.querySelector(
+      `.ping-status-indicator[data-device-id="${deviceId}"] .ping-status-dot`,
+    );
+    const statusText = document.querySelector(
+      `.ping-status-indicator[data-device-id="${deviceId}"] .ping-status-text`,
+    );
+    const responseTimeEl = document.querySelector(
+      `.ping-status-indicator[data-device-id="${deviceId}"] .ping-response-time`,
+    );
+
+    if (statusDot && statusText) {
+      // Update status color and text
+      if (status === "available" || status === "responding") {
+        statusDot.style.backgroundColor = "var(--md-sys-color-tertiary)"; // Green-ish
+        statusText.textContent = "Online";
+        statusText.style.color = "var(--md-sys-color-tertiary)";
+      } else {
+        statusDot.style.backgroundColor = "var(--md-sys-color-error)"; // Red
+        statusText.textContent = "Offline";
+        statusText.style.color = "var(--md-sys-color-error)";
+      }
+
+      // Update response time display
+      if (responseTimeEl && responseTime) {
+        responseTimeEl.textContent = `${responseTime}ms`;
+      }
+    }
+  });
+}
+
+/**
  * Device scan results UI rendering and management
  */
 
@@ -13,6 +125,7 @@ import { openAddToGroupModal } from "./addToGroupModal.js";
  * @param {string} options.buttonType - Type of button: "add-to-group" or "remove-from-group"
  * @param {string} options.buttonGroupId - Group ID (required for remove-from-group)
  * @param {boolean} options.showGroupBadge - Whether to show group count badge (default: false)
+ * @param {boolean} options.showPingControls - Whether to show ping start/stop controls (default: false)
  * @returns {string} HTML string for the device row
  */
 export function renderDeviceRow(device, options = {}) {
@@ -21,6 +134,7 @@ export function renderDeviceRow(device, options = {}) {
     buttonType = "add-to-group",
     buttonGroupId = null,
     showGroupBadge = false,
+    showPingControls = false,
   } = options;
 
   const displayName = device.friendlyName || device.name || "(Unknown)";
@@ -47,10 +161,32 @@ export function renderDeviceRow(device, options = {}) {
     groupBadge = `<span class="device-groups-badge">${device.groupCount} group${device.groupCount !== 1 ? "s" : ""}</span>`;
   }
 
+  let pingControlsHtml = "";
+  // Ping controls are only enabled in groupsUI.js, never in deviceScanUI
+  if (showPingControls) {
+    pingControlsHtml = `
+      <div class="device-ping-controls">
+        <button class="start-ping-btn md-button" data-device-id="${device.id}" data-device-ip="${device.ip}">
+          <span class="material-icons">play_arrow</span>
+          Ping
+        </button>
+        <button class="stop-ping-btn md-button hidden" data-device-id="${device.id}">
+          <span class="material-icons">stop</span>
+          Stop
+        </button>
+        <div class="ping-status-indicator hidden" data-device-id="${device.id}">
+          <span class="ping-status-dot"></span>
+          <span class="ping-status-text">—</span>
+          <span class="ping-response-time"></span>
+        </div>
+      </div>
+    `;
+  }
+
   return `
     <tr class="device-row" data-device-id="${device.id}" data-row-id="${rowId}">
-      <td style="text-align: center;">
-        <span class="material-icons expand-icon" style="font-size: 20px; cursor: pointer;">expand_more</span>
+      <td class="device-row-expand-icon">
+        <span class="material-icons expand-icon">expand_more</span>
       </td>
       <td>
         <div class="device-name">
@@ -63,11 +199,12 @@ export function renderDeviceRow(device, options = {}) {
           </div>
         </div>
       </td>
-      <td><span class="ip-address">${device.ip}</span></td>
+      <td><span class="device-ip">${device.ip}</span></td>
       <td><span class="mac-address">${device.mac}</span></td>
       <td><span class="manufacturer-badge">${manufacturer}</span></td>
       <td>
-        <div style="display: flex; align-items: center; gap: 8px;">
+        <div class="device-row-actions">
+          ${pingControlsHtml}
           ${buttonHtml}
         </div>
       </td>
@@ -101,12 +238,12 @@ export async function renderDeviceScan(devices) {
       <table class="md-table">
         <thead>
           <tr>
-            <th style="width: 40px;"></th>
+            <th class="table-header-icon"></th>
             <th>Device Name</th>
             <th>IP Address</th>
             <th>MAC Address</th>
             <th>Manufacturer</th>
-            <th style="width: 120px;">Actions</th>
+            <th class="table-header-actions">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -122,7 +259,7 @@ export async function renderDeviceScan(devices) {
       if (storedResult.success && storedResult.device) {
         storedDevice = storedResult.device;
       }
-    } catch (_e) {
+    } catch {
       console.debug("Device not in storage yet");
     }
 
@@ -136,7 +273,7 @@ export async function renderDeviceScan(devices) {
         if (groupsResult.success) {
           groupCount = groupsResult.groups.length;
         }
-      } catch (_e) {
+      } catch {
         console.debug("Error getting groups for device");
       }
     }
@@ -152,6 +289,7 @@ export async function renderDeviceScan(devices) {
         rowId: index,
         buttonType: "add-to-group",
         showGroupBadge: true,
+        showPingControls: false,
       },
     );
 
@@ -160,12 +298,11 @@ export async function renderDeviceScan(devices) {
         <td colspan="6">
           <div class="details-cell">
             <div class="details-title">Friendly Name</div>
-            <div style="display: inline-flex; gap: 12px; margin-bottom: 24px; align-items: center;">
+            <div class="friendly-name-input-container">
               <input
                 type="text"
                 class="device-friendly-name-input form-input-inline"
                 placeholder="Enter friendly name"
-                style="width: 600px;"
               />
               <button class="save-friendly-name-btn md-button">Save</button>
             </div>
@@ -174,7 +311,7 @@ export async function renderDeviceScan(devices) {
             <div class="details-title">Groups</div>
             <div class="device-groups-list"></div>
             
-            <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div class="device-details-section">
                   <div class="device-groups-list"></div>
                   
                   <div class="details-title">Operating System</div>
@@ -193,8 +330,12 @@ export async function renderDeviceScan(devices) {
   // Add event listeners to expand rows
   document.querySelectorAll(".device-row").forEach((row) => {
     row.addEventListener("click", async (e) => {
-      // Don't expand if clicking the add to group button
-      if (e.target.closest(".add-to-group-btn")) return;
+      console.log("[Debug] Device row clicked on:", e.target.className);
+      // Don't expand if clicking buttons or controls
+      if (e.target.closest(".add-to-group-btn")) {
+        console.log("[Debug] Blocking expansion: add-to-group-btn");
+        return;
+      }
 
       const index = row.dataset.rowId;
       const detailsRow = document.querySelector(
@@ -202,6 +343,7 @@ export async function renderDeviceScan(devices) {
       );
       const icon = row.querySelector(".expand-icon");
 
+      console.log("[Debug] Expanding row, index:", index);
       detailsRow.classList.toggle("expanded");
       icon.classList.toggle("expanded");
 
@@ -232,7 +374,7 @@ export async function renderDeviceScan(devices) {
         if (storedDevice) {
           friendlyNameInput.value = storedDevice.friendlyName || "";
           if (storedDevice.friendlyName) {
-            friendlyNameInfo.innerHTML = `<span style="color: var(--md-sys-color-on-surface-variant); font-size: var(--font-size-label);">Original name: ${storedDevice.name}</span>`;
+            friendlyNameInfo.innerHTML = `<span class="info-text">Original name: ${storedDevice.name}</span>`;
           } else {
             friendlyNameInfo.textContent = "";
           }
@@ -248,7 +390,7 @@ export async function renderDeviceScan(devices) {
               if (result.success) {
                 console.log("[Renderer] Friendly name updated");
                 if (newFriendlyName) {
-                  friendlyNameInfo.innerHTML = `<span style="color: var(--md-sys-color-on-surface-variant); font-size: var(--font-size-label);">Original name: ${storedDevice.name}</span>`;
+                  friendlyNameInfo.innerHTML = `<span class="info-text">Original name: ${storedDevice.name}</span>`;
                 } else {
                   friendlyNameInfo.textContent = "";
                 }
@@ -276,15 +418,14 @@ export async function renderDeviceScan(devices) {
             friendlyNameInput.title = "Add device to a group to edit name";
             saveFriendlyNameBtn.title = "Add device to a group to edit name";
             groupsList.innerHTML =
-              '<span style="color: var(--md-sys-color-on-surface-variant); font-size: var(--font-size-label);">Not assigned to any groups</span>';
+              '<span class="info-text">Not assigned to any groups</span>';
           } else {
             friendlyNameInput.disabled = false;
             saveFriendlyNameBtn.disabled = false;
             friendlyNameInput.title = "";
             saveFriendlyNameBtn.title = "";
 
-            let groupsHtml =
-              '<div style="display: flex; flex-wrap: wrap; gap: 8px;">';
+            let groupsHtml = '<div class="groups-wrap-container">';
             groups.forEach((group) => {
               groupsHtml += `<span class="group-badge">${group.name}</span>`;
             });
@@ -305,7 +446,7 @@ export async function renderDeviceScan(devices) {
           saveFriendlyNameBtn.title = "Add device to a group to edit name";
 
           detailsRow.querySelector(".device-groups-list").innerHTML =
-            '<span style="color: var(--md-sys-color-on-surface-variant); font-size: var(--font-size-label);">Not assigned to any groups</span>';
+            '<span class="info-text">Not assigned to any groups</span>';
         }
       }
     });

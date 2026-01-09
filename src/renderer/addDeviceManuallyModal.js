@@ -49,11 +49,11 @@ export async function openAddDeviceManuallyModal(preselectedGroupId = null) {
 
     manualDeviceGroupList.innerHTML =
       groupsHtml ||
-      '<p style="color: var(--md-sys-color-on-surface-variant);">No groups available. Create one first.</p>';
+      '<p class="empty-state-message no-groups">No groups available. Create one first.</p>';
   } catch (error) {
     console.error("[Renderer] Error loading groups:", error);
     manualDeviceGroupList.innerHTML =
-      '<p style="color: var(--md-sys-color-error);">Error loading groups</p>';
+      '<p class="empty-state-message error">Error loading groups</p>';
   }
 
   addDeviceManuallyModal.classList.add("show");

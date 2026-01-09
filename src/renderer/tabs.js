@@ -22,7 +22,9 @@ export function initializeTabs() {
 
       console.log("[Renderer] Switched to tab:", tabName);
 
-      if (tabName === "device-group") {
+      if (tabName === "group-connectivity") {
+        // TODO: Render group connectivity
+      } else if (tabName === "device-group") {
         renderGroups();
       }
     });

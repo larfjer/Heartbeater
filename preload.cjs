@@ -43,6 +43,26 @@ const groupDeviceRelationApi = {
     ipcRenderer.invoke("storage:getGroupsForDevice", deviceId),
 };
 
+const pingApi = {
+  startPing: (deviceId, ipAddress, intervalMs) =>
+    ipcRenderer.invoke("ping:start", deviceId, ipAddress, intervalMs),
+  stopPing: (deviceId) => ipcRenderer.invoke("ping:stop", deviceId),
+  stopAllPings: () => ipcRenderer.invoke("ping:stopAll"),
+  getStatus: (deviceId) => ipcRenderer.invoke("ping:getStatus", deviceId),
+  getActivePingCount: () => ipcRenderer.invoke("ping:getActivePingCount"),
+  getActivePings: () => ipcRenderer.invoke("ping:getActivePings"),
+  getDetailedStatus: (deviceId) =>
+    ipcRenderer.invoke("ping:getDetailedStatus", deviceId),
+  getStatusMetrics: (deviceId) =>
+    ipcRenderer.invoke("ping:getStatusMetrics", deviceId),
+  onAvailabilityChanged: (callback) =>
+    ipcRenderer.on("device:availability-changed", (_event, data) =>
+      callback(data),
+    ),
+  onStatusUpdated: (callback) =>
+    ipcRenderer.on("device:status-updated", (_event, data) => callback(data)),
+};
+
 contextBridge.exposeInMainWorld("api", {
   scanNetwork: scannerApi.scanNetwork,
   scanDeviceDetails: scannerApi.scanDeviceDetails,
@@ -63,5 +83,17 @@ contextBridge.exposeInMainWorld("api", {
     removeDeviceFromGroup: groupDeviceRelationApi.removeDeviceFromGroup,
     getDevicesInGroup: groupDeviceRelationApi.getDevicesInGroup,
     getGroupsForDevice: groupDeviceRelationApi.getGroupsForDevice,
+  },
+  ping: {
+    start: pingApi.startPing,
+    stop: pingApi.stopPing,
+    stopAll: pingApi.stopAllPings,
+    getStatus: pingApi.getStatus,
+    getActivePingCount: pingApi.getActivePingCount,
+    getActivePings: pingApi.getActivePings,
+    getDetailedStatus: pingApi.getDetailedStatus,
+    getStatusMetrics: pingApi.getStatusMetrics,
+    onAvailabilityChanged: pingApi.onAvailabilityChanged,
+    onStatusUpdated: pingApi.onStatusUpdated,
   },
 });

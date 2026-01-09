@@ -26,4 +26,5 @@ export function createWindow() {
   log.debug("Loading index.html");
   mainWindow.loadFile("index.html");
   log.info("Main window created successfully");
+  return mainWindow;
 }

@@ -40,7 +40,7 @@ export async function openAddToGroupModal(device) {
 
     if (groups.length === 0) {
       domElements.groupList.innerHTML =
-        '<p style="color: var(--md-sys-color-on-surface-variant); text-align: center; padding: 24px;">No groups exist yet. Create one below.</p>';
+        '<p class="empty-state-message no-groups">No groups exist yet. Create one below.</p>';
     } else {
       let html = "";
       groups.forEach((group) => {

@@ -3,7 +3,7 @@
  */
 
 import { domElements } from "./domElements.js";
-import { renderDeviceRow } from "./deviceScanUI.js";
+import { renderDeviceRow, setupPingControlListeners } from "./deviceScanUI.js";
 import { openAddDeviceManuallyModal } from "./addDeviceManuallyModal.js";
 
 export async function renderGroups() {
@@ -40,7 +40,7 @@ export async function renderGroups() {
         <table class="md-table">
           <thead>
             <tr>
-              <th style="width: 40px;"></th>
+              <th class="table-header-icon"></th>
               <th>Group Name</th>
               <th>Description</th>
               <th>Devices</th>
@@ -58,25 +58,25 @@ export async function renderGroups() {
 
       html += `
         <tr class="group-row" data-group-id="${group.id}" data-index="${index}">
-          <td style="text-align: center;">
-            <span class="material-icons expand-icon" style="font-size: 20px; cursor: pointer;">expand_more</span>
+          <td class="group-row-expand-icon">
+            <span class="material-icons expand-icon">expand_more</span>
           </td>
           <td>
             <div class="device-name">
-              <div class="device-icon">
+              <div class="device-icon folder-icon">
                 <span class="material-icons">folder</span>
               </div>
-              <span style="font-weight: 500; color: var(--md-sys-color-on-surface);">${group.name}</span>
+              <span class="device-name-text">${group.name}</span>
             </div>
           </td>
-          <td><span style="color: var(--md-sys-color-on-surface-variant);">${group.description || "No description"}</span></td>
+          <td><span class="device-manufacturer">${group.description || "No description"}</span></td>
           <td><span class="manufacturer-badge">${devices.length} device${devices.length !== 1 ? "s" : ""}</span></td>
         </tr>
         <tr class="group-details-row" data-index="${index}">
           <td colspan="4">
             <div class="details-cell">
-              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; width: 100%; min-height: 32px;">
-                <span style="font-size: var(--font-size-title); font-weight: 500; color: var(--md-sys-color-on-surface); text-transform: none;">Devices in Group</span>
+              <div class="group-devices-header">
+                <span class="group-devices-header-title">Devices in Group</span>
                 <button class="add-device-to-group-btn" data-group-id="${group.id}">
                   <span class="material-icons">add</span>
                 </button>
@@ -113,10 +113,10 @@ export async function renderGroups() {
 
           if (devices.length === 0) {
             devicesList.innerHTML =
-              '<p style="color: var(--md-sys-color-on-surface-variant); margin: 0;">No devices in this group</p>';
+              '<p class="empty-devices-text">No devices in this group</p>';
           } else {
             let devicesHtml = `
-              <table class="md-table" style="width: 100%;">
+              <table class="md-table full-width">
                 <tbody>
             `;
             devices.forEach((device, deviceIndex) => {
@@ -124,6 +124,7 @@ export async function renderGroups() {
                 rowId: deviceIndex,
                 buttonType: "remove-from-group",
                 buttonGroupId: groupId,
+                showPingControls: true,
               });
 
               // Add details row for expansion
@@ -132,12 +133,11 @@ export async function renderGroups() {
                   <td colspan="6">
                     <div class="details-cell">
                       <div class="details-title">Friendly Name</div>
-                      <div style="display: inline-flex; gap: 12px; margin-bottom: 24px; align-items: center;">
+                      <div class="friendly-name-input-container">
                         <input
                           type="text"
                           class="device-friendly-name-input form-input-inline"
                           placeholder="Enter friendly name"
-                          style="width: 600px;"
                         />
                         <button class="save-friendly-name-btn md-button">Save</button>
                       </div>
@@ -146,7 +146,7 @@ export async function renderGroups() {
                       <div class="details-title">Groups</div>
                       <div class="device-groups-list"></div>
                       
-                      <div style="display: flex; flex-direction: column; gap: 8px;">
+                      <div class="device-details-section">
                         <div class="device-groups-list"></div>
                         
                         <div class="details-title">Operating System</div>
@@ -168,8 +168,14 @@ export async function renderGroups() {
             // Add event listeners for device row expansion
             devicesList.querySelectorAll(".device-row").forEach((row) => {
               row.addEventListener("click", async (e) => {
-                // Don't expand if clicking the remove button
+                // Don't expand if clicking the remove button or ping controls
                 if (e.target.closest(".remove-device-btn")) return;
+                if (e.target.closest(".device-ping-controls")) {
+                  console.log(
+                    "[Debug] Blocking expansion: device-ping-controls",
+                  );
+                  return;
+                }
 
                 const index = row.dataset.rowId;
                 const detailsRow = devicesList.querySelector(
@@ -210,7 +216,7 @@ export async function renderGroups() {
                   if (storedDevice) {
                     friendlyNameInput.value = storedDevice.friendlyName || "";
                     if (storedDevice.friendlyName) {
-                      friendlyNameInfo.innerHTML = `<span style="color: var(--md-sys-color-on-surface-variant); font-size: var(--font-size-label);">Original name: ${storedDevice.name}</span>`;
+                      friendlyNameInfo.innerHTML = `<span class="info-text">Original name: ${storedDevice.name}</span>`;
                     } else {
                       friendlyNameInfo.textContent = "";
                     }
@@ -227,7 +233,7 @@ export async function renderGroups() {
                         if (result.success) {
                           console.log("[Renderer] Friendly name updated");
                           if (newFriendlyName) {
-                            friendlyNameInfo.innerHTML = `<span style="color: var(--md-sys-color-on-surface-variant); font-size: var(--font-size-label);">Original name: ${storedDevice.name}</span>`;
+                            friendlyNameInfo.innerHTML = `<span class="info-text">Original name: ${storedDevice.name}</span>`;
                           } else {
                             friendlyNameInfo.textContent = "";
                           }
@@ -266,15 +272,14 @@ export async function renderGroups() {
                       saveFriendlyNameBtn.title =
                         "Add device to a group to edit name";
                       groupsList.innerHTML =
-                        '<span style="color: var(--md-sys-color-on-surface-variant); font-size: var(--font-size-label);">Not assigned to any groups</span>';
+                        '<span class="info-text">Not assigned to any groups</span>';
                     } else {
                       friendlyNameInput.disabled = false;
                       saveFriendlyNameBtn.disabled = false;
                       friendlyNameInput.title = "";
                       saveFriendlyNameBtn.title = "";
 
-                      let groupsHtml =
-                        '<div style="display: flex; flex-wrap: wrap; gap: 8px;">';
+                      let groupsHtml = '<div class="groups-wrap-container">';
                       groups.forEach((group) => {
                         groupsHtml += `<span class="group-badge">${group.name}</span>`;
                       });
@@ -298,7 +303,7 @@ export async function renderGroups() {
                       "Add device to a group to edit name";
 
                     detailsRow.querySelector(".device-groups-list").innerHTML =
-                      '<span style="color: var(--md-sys-color-on-surface-variant); font-size: var(--font-size-label);">Not assigned to any groups</span>';
+                      '<span class="info-text">Not assigned to any groups</span>';
                   }
                 }
               });
@@ -337,6 +342,9 @@ export async function renderGroups() {
           }
         }
       });
+
+      // Set up ping control listeners for devices in groups
+      setupPingControlListeners();
     });
   } catch (error) {
     console.error("[Renderer] Error rendering groups:", error);

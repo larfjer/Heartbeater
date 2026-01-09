@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="styles/components/tables.css" />
     <link rel="stylesheet" href="styles/components/badges.css" />
     <link rel="stylesheet" href="styles/components/modals.css" />
+    <link rel="stylesheet" href="styles/components/groupsUI.css" />
 
     <!-- Styles - Features -->
     <link rel="stylesheet" href="styles/features/tabs.css" />
@@ -41,27 +42,33 @@
     </header>
 
     <nav class="tabs">
-      <div class="tab active" data-tab="device-scan">
-        <span
-          class="material-icons"
-          style="font-size: 18px; vertical-align: middle; margin-right: 8px"
-          >radar</span
-        >
+      <div class="tab active" data-tab="group-connectivity">
+        <span class="material-icons tab-icon">hub</span>
+        Group Connectivity
+      </div>
+      <div class="tab" data-tab="device-scan">
+        <span class="material-icons tab-icon">radar</span>
         Device Scan
       </div>
       <div class="tab" data-tab="device-group">
-        <span
-          class="material-icons"
-          style="font-size: 18px; vertical-align: middle; margin-right: 8px"
-          >group</span
-        >
+        <span class="material-icons tab-icon">group</span>
         Device Groups
       </div>
     </nav>
 
     <main class="container">
+      <!-- Group Connectivity Tab -->
+      <div id="group-connectivity" class="tab-content active">
+        <div class="card">
+          <h2 class="card-title">Group Connectivity</h2>
+          <p class="card-subtitle">Monitor connectivity status of devices in your groups</p>
+        </div>
+
+        <div id="connectivity-container"></div>
+      </div>
+
       <!-- Device Scan Tab -->
-      <div id="device-scan" class="tab-content active">
+      <div id="device-scan" class="tab-content">
         <div class="card">
           <h2 class="card-title">Network Scanner</h2>
           <p class="card-subtitle">Discover all devices connected to your local network</p>
@@ -94,20 +101,10 @@
         <div class="modal-header">Add Device to Group</div>
         <div class="modal-body">
           <div class="group-list" id="groupList"></div>
-          <div
-            style="
-              border-top: 1px solid var(--md-sys-color-outline);
-              padding-top: 16px;
-              margin-top: 16px;
-            "
-          >
+          <div class="modal-divider">
             <details>
-              <summary
-                style="cursor: pointer; color: var(--md-sys-color-primary); font-weight: 500"
-              >
-                Create new group
-              </summary>
-              <div style="margin-top: 16px">
+              <summary class="details-summary">Create new group</summary>
+              <div class="details-content">
                 <div class="form-group">
                   <label class="form-label">Group Name</label>
                   <input
@@ -128,8 +125,7 @@
                 </div>
                 <button
                   id="createNewGroupBtn"
-                  class="modal-button modal-button-primary"
-                  style="width: 100%"
+                  class="modal-button modal-button-primary button-full-width"
                 >
                   Create Group
                 </button>
@@ -149,63 +145,58 @@
       <div class="modal-content">
         <div class="modal-header">Add Device Manually</div>
         <div class="modal-body">
-          <div class="form-group" style="display: flex; align-items: center; gap: 12px">
-            <label class="form-label" style="flex: 0 0 120px; margin: 0">Device Name *</label>
+          <div class="form-group form-group-flex">
+            <label class="form-label form-label-flex">Device Name *</label>
             <input
               type="text"
               id="manualDeviceName"
-              class="form-input"
+              class="form-input form-input-flex"
               placeholder="e.g., My Device"
-              style="flex: 1"
             />
           </div>
 
-          <div class="form-group" style="display: flex; align-items: center; gap: 12px">
-            <label class="form-label" style="flex: 0 0 120px; margin: 0">IP Address *</label>
+          <div class="form-group form-group-flex">
+            <label class="form-label form-label-flex">IP Address *</label>
             <input
               type="text"
               id="manualDeviceIp"
-              class="form-input"
+              class="form-input form-input-flex"
               placeholder="e.g., 192.168.1.100"
-              style="flex: 1"
             />
           </div>
 
-          <div class="form-group" style="display: flex; align-items: center; gap: 12px">
-            <label class="form-label" style="flex: 0 0 120px; margin: 0">MAC Address</label>
+          <div class="form-group form-group-flex">
+            <label class="form-label form-label-flex">MAC Address</label>
             <input
               type="text"
               id="manualDeviceMac"
-              class="form-input"
+              class="form-input form-input-flex"
               placeholder="e.g., 00:11:22:33:44:55"
-              style="flex: 1"
             />
           </div>
 
-          <div class="form-group" style="display: flex; align-items: center; gap: 12px">
-            <label class="form-label" style="flex: 0 0 120px; margin: 0">Manufacturer</label>
+          <div class="form-group form-group-flex">
+            <label class="form-label form-label-flex">Manufacturer</label>
             <input
               type="text"
               id="manualDeviceManufacturer"
-              class="form-input"
+              class="form-input form-input-flex"
               placeholder="e.g., Apple Inc."
-              style="flex: 1"
             />
           </div>
 
-          <div class="form-group" style="display: flex; align-items: center; gap: 12px">
-            <label class="form-label" style="flex: 0 0 120px; margin: 0">Friendly Name</label>
+          <div class="form-group form-group-flex">
+            <label class="form-label form-label-flex">Friendly Name</label>
             <input
               type="text"
               id="manualDeviceFriendlyName"
-              class="form-input"
+              class="form-input form-input-flex"
               placeholder="e.g., Living Room TV"
-              style="flex: 1"
             />
           </div>
 
-          <div class="form-group" style="display: flex; flex-direction: column; gap: 12px">
-            <label class="form-label" style="margin: 0">Select Groups *</label>
+          <div class="form-group form-group-flex-col">
+            <label class="form-label">Select Groups *</label>
             <div class="group-list" id="manualDeviceGroupList"></div>
           </div>
         </div>

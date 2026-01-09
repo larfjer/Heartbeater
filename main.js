@@ -20,9 +20,11 @@ import { registerScannerHandlers } from "./src/main/ipcScannerHandlers.js";
 import { registerDeviceStorageHandlers } from "./src/main/ipcDeviceHandlers.js";
 import { registerGroupStorageHandlers } from "./src/main/ipcGroupHandlers.js";
 import { registerGroupDeviceHandlers } from "./src/main/ipcGroupDeviceHandlers.js";
+import { registerPingHandlers } from "./src/main/pingManager.js";
 
 // Initialize storage
 let storage;
+let mainWindow;
 
 // Register all IPC handlers
 function registerIpcHandlers() {
@@ -31,14 +33,15 @@ function registerIpcHandlers() {
   registerDeviceStorageHandlers(storage);
   registerGroupStorageHandlers(storage);
   registerGroupDeviceHandlers(storage);
+  registerPingHandlers(mainWindow);
 }
 
 // Initialize app when ready
 app.whenReady().then(() => {
   log.info("App is ready");
   storage = new GroupStorageService();
+  mainWindow = initializeApp(storage);
   registerIpcHandlers();
-  initializeApp(storage);
 });
 
 // Register app lifecycle handlers

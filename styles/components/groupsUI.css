@@ -1,0 +1,371 @@
+/* Groups UI Styles - replaces inline styles for CSP compliance */
+
+/* Group row and table styles */
+.group-row {
+  cursor: pointer;
+}
+
+.group-row td {
+  vertical-align: middle;
+}
+
+/* Table cells with specific widths */
+.group-row-expand-icon {
+  width: 40px;
+  text-align: center;
+}
+
+.group-row .expand-icon {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Device name section in group rows */
+.device-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.device-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.device-icon .material-icons {
+  font-size: 20px;
+}
+
+.device-icon.folder-icon {
+  background-color: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+}
+
+/* Device text styling */
+.device-name-text {
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+.device-manufacturer {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--font-size-body);
+}
+
+.device-ip {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--font-size-label);
+}
+
+.mac-address {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--font-size-label);
+}
+
+/* Badges */
+.manufacturer-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  border-radius: 4px;
+  font-size: var(--font-size-label);
+}
+
+.device-groups-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+  border-radius: 4px;
+  font-size: var(--font-size-label);
+  margin-left: 8px;
+}
+
+.group-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  border-radius: 4px;
+  font-size: var(--font-size-label);
+}
+
+/* Details cells and sections */
+.details-cell {
+  padding: 16px;
+  background-color: var(--md-sys-color-surface-variant);
+  border-radius: 8px;
+}
+
+.details-title {
+  font-weight: 500;
+  font-size: var(--font-size-title-small);
+  color: var(--md-sys-color-on-surface);
+  margin-bottom: 12px;
+  margin-top: 16px;
+}
+
+.details-title:first-child {
+  margin-top: 0;
+}
+
+/* Info text styling */
+.friendly-name-info,
+.os-info,
+.services-list {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--font-size-label);
+  margin-bottom: 12px;
+}
+
+/* Friendly name input container */
+.friendly-name-input-container {
+  display: inline-flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  align-items: center;
+}
+
+.device-friendly-name-input {
+  width: 600px;
+}
+
+/* Device details section */
+.device-details-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Device row actions */
+.device-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Group devices list header */
+.group-devices-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  width: 100%;
+  min-height: 32px;
+}
+
+.group-devices-header-title {
+  font-size: var(--font-size-title);
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+  text-transform: none;
+}
+
+/* Expanded state styling */
+.details-row.expanded {
+  background-color: var(--md-sys-color-surface-dim);
+}
+
+.expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+/* Ping control styling */
+.device-ping-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ping-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ping-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: gray;
+}
+
+.ping-status-dot.online {
+  background-color: var(--md-sys-color-tertiary);
+}
+
+.ping-status-dot.offline {
+  background-color: var(--md-sys-color-error);
+}
+
+.ping-status-text {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.ping-status-text.online {
+  color: var(--md-sys-color-tertiary);
+}
+
+.ping-status-text.offline {
+  color: var(--md-sys-color-error);
+}
+
+.ping-response-time {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+  min-width: 40px;
+  text-align: right;
+}
+
+/* Table header styling */
+.table-header-icon {
+  width: 40px;
+}
+
+.table-header-actions {
+  width: 120px;
+}
+
+.table-header-sm {
+  width: 120px;
+}
+
+/* Full width table */
+.md-table.full-width {
+  width: 100%;
+}
+
+/* Empty devices text */
+.empty-devices-text {
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+}
+
+/* Info text styling */
+.info-text {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--font-size-label);
+}
+
+/* Groups wrap container */
+.groups-wrap-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Friendly name input container */
+.friendly-name-input-container {
+  display: inline-flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  align-items: center;
+}
+
+.device-friendly-name-input {
+  width: 600px;
+}
+
+/* Device details section */
+.device-details-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Device row actions */
+.device-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Hidden/display utility */
+.hidden {
+  display: none !important;
+}
+
+/* Empty state messages */
+.empty-state-message {
+  color: var(--md-sys-color-on-surface-variant);
+  text-align: center;
+  padding: 24px;
+}
+
+.empty-state-message.no-groups {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.empty-state-message.error {
+  color: var(--md-sys-color-error);
+}
+
+/* Error icon styling */
+.error-icon {
+  color: var(--md-sys-color-error);
+}
+
+/* Tab icon styling */
+.tab-icon {
+  font-size: 18px;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+/* Modal divider styling */
+.modal-divider {
+  border-top: 1px solid var(--md-sys-color-outline);
+  padding-top: 16px;
+  margin-top: 16px;
+}
+
+/* Details summary styling */
+.details-summary {
+  cursor: pointer;
+  color: var(--md-sys-color-primary);
+  font-weight: 500;
+}
+
+/* Details content spacing */
+.details-content {
+  margin-top: 16px;
+}
+
+/* Form group flex layout */
+.form-group-flex {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Form group flex column layout */
+.form-group-flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Form label flex sizing */
+.form-label-flex {
+  flex: 0 0 120px;
+  margin: 0;
+}
+
+/* Form input flex sizing */
+.form-input-flex {
+  flex: 1;
+}
+
+/* Full width button */
+.button-full-width {
+  width: 100%;
+}
