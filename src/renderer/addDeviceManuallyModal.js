@@ -4,9 +4,12 @@
 
 import { domElements, appState } from "./domElements.js";
 
-export function initializeAddDeviceManually() {
+/**
+ * Opens the add device manually modal with optional group preselection
+ * @param {string} preselectedGroupId - Optional group ID to auto-select
+ */
+export async function openAddDeviceManuallyModal(preselectedGroupId = null) {
   const {
-    addDeviceManuallyBtn,
     addDeviceManuallyModal,
     manualDeviceName,
     manualDeviceIp,
@@ -14,47 +17,68 @@ export function initializeAddDeviceManually() {
     manualDeviceManufacturer,
     manualDeviceFriendlyName,
     manualDeviceGroupList,
-    addDeviceManuallyCancel,
-    addDeviceManuallyConfirm,
   } = domElements;
 
-  // Open modal
-  addDeviceManuallyBtn.addEventListener("click", async () => {
-    // Reset form
-    manualDeviceName.value = "";
-    manualDeviceIp.value = "";
-    manualDeviceMac.value = "";
-    manualDeviceManufacturer.value = "";
-    manualDeviceFriendlyName.value = "";
-    appState.selectedGroupIdsForManualDevice.clear();
-    appState.originalGroupIdsForManualDevice.clear();
+  // Reset form
+  manualDeviceName.value = "";
+  manualDeviceIp.value = "";
+  manualDeviceMac.value = "";
+  manualDeviceManufacturer.value = "";
+  manualDeviceFriendlyName.value = "";
+  appState.selectedGroupIdsForManualDevice.clear();
+  appState.originalGroupIdsForManualDevice.clear();
 
-    // Load groups for selection
-    try {
-      const groupsResult = await window.api.storage.getAllGroups();
-      const groups = groupsResult.success ? groupsResult.groups : [];
+  // Load groups for selection
+  try {
+    const groupsResult = await window.api.storage.getAllGroups();
+    const groups = groupsResult.success ? groupsResult.groups : [];
 
-      let groupsHtml = "";
-      groups.forEach((group) => {
-        groupsHtml += `
-          <label class="group-option">
-            <input type="checkbox" class="group-checkbox" data-group-id="${group.id}" />
-            <span class="group-option-label">${group.name}</span>
-          </label>
-        `;
-      });
+    let groupsHtml = "";
+    groups.forEach((group) => {
+      const isChecked = preselectedGroupId === group.id ? "checked" : "";
+      groupsHtml += `
+        <label class="group-option">
+          <input type="checkbox" class="group-checkbox" data-group-id="${group.id}" ${isChecked} />
+          <span class="group-option-label">${group.name}</span>
+        </label>
+      `;
+      if (preselectedGroupId === group.id) {
+        appState.selectedGroupIdsForManualDevice.add(group.id);
+      }
+    });
 
-      manualDeviceGroupList.innerHTML =
-        groupsHtml ||
-        '<p style="color: var(--md-sys-color-on-surface-variant);">No groups available. Create one first.</p>';
-    } catch (error) {
-      console.error("[Renderer] Error loading groups:", error);
-      manualDeviceGroupList.innerHTML =
-        '<p style="color: var(--md-sys-color-error);">Error loading groups</p>';
-    }
+    manualDeviceGroupList.innerHTML =
+      groupsHtml ||
+      '<p style="color: var(--md-sys-color-on-surface-variant);">No groups available. Create one first.</p>';
+  } catch (error) {
+    console.error("[Renderer] Error loading groups:", error);
+    manualDeviceGroupList.innerHTML =
+      '<p style="color: var(--md-sys-color-error);">Error loading groups</p>';
+  }
 
-    addDeviceManuallyModal.classList.add("show");
-  });
+  addDeviceManuallyModal.classList.add("show");
+}
+
+export function initializeAddDeviceManually() {
+  const {
+    addDeviceManuallyBtn,
+    addDeviceManuallyModal,
+    addDeviceManuallyCancel,
+    addDeviceManuallyConfirm,
+    manualDeviceName,
+    manualDeviceIp,
+    manualDeviceMac,
+    manualDeviceManufacturer,
+    manualDeviceFriendlyName,
+    manualDeviceGroupList,
+  } = domElements;
+
+  // Only add button listener if button exists (for backward compatibility)
+  if (addDeviceManuallyBtn) {
+    addDeviceManuallyBtn.addEventListener("click", () => {
+      openAddDeviceManuallyModal();
+    });
+  }
 
   // Close modal
   addDeviceManuallyCancel.addEventListener("click", () => {

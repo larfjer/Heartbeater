@@ -4,6 +4,7 @@
 
 import { domElements } from "./domElements.js";
 import { renderDeviceRow } from "./deviceScanUI.js";
+import { openAddDeviceManuallyModal } from "./addDeviceManuallyModal.js";
 
 export async function renderGroups() {
   const { groupsContainer } = domElements;
@@ -61,9 +62,11 @@ export async function renderGroups() {
             <span class="material-icons expand-icon" style="font-size: 20px; cursor: pointer;">expand_more</span>
           </td>
           <td>
-            <div style="font-weight: 500; color: var(--md-sys-color-on-surface);">
-              <span class="material-icons" style="vertical-align: middle; margin-right: 8px; color: var(--md-sys-color-primary);">folder</span>
-              ${group.name}
+            <div class="device-name">
+              <div class="device-icon">
+                <span class="material-icons">folder</span>
+              </div>
+              <span style="font-weight: 500; color: var(--md-sys-color-on-surface);">${group.name}</span>
             </div>
           </td>
           <td><span style="color: var(--md-sys-color-on-surface-variant);">${group.description || "No description"}</span></td>
@@ -72,7 +75,12 @@ export async function renderGroups() {
         <tr class="group-details-row" data-index="${index}">
           <td colspan="4">
             <div class="details-cell">
-              <div class="details-title">Devices in Group</div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; width: 100%; min-height: 32px;">
+                <span style="font-size: var(--font-size-title); font-weight: 500; color: var(--md-sys-color-on-surface); text-transform: none;">Devices in Group</span>
+                <button class="add-device-to-group-btn" data-group-id="${group.id}">
+                  <span class="material-icons">add</span>
+                </button>
+              </div>
               <div class="group-devices-list"></div>
             </div>
           </td>
@@ -315,6 +323,17 @@ export async function renderGroups() {
                   }
                 });
               });
+
+            // Add event listener for add device button in this group
+            const addDeviceBtn = detailsRow.querySelector(
+              ".add-device-to-group-btn",
+            );
+            if (addDeviceBtn) {
+              addDeviceBtn.addEventListener("click", async (e) => {
+                e.stopPropagation();
+                await openAddDeviceManuallyModal(groupId);
+              });
+            }
           }
         }
       });

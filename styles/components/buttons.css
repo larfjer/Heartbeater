@@ -136,6 +136,36 @@
   font-size: 18px;
 }
 
+/* Add Device to Group Button (+ button in group header) */
+.add-device-to-group-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  border: none;
+  padding: 6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.add-device-to-group-btn:hover {
+  box-shadow: var(--shadow-md);
+  filter: brightness(1.1);
+}
+
+.add-device-to-group-btn:active {
+  transform: scale(0.95);
+}
+
+.add-device-to-group-btn .material-icons {
+  font-size: 18px;
+}
+
 /* Add Device Manually Button */
 .add-device-manually-btn {
   display: inline-flex;
