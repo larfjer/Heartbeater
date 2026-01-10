@@ -11,8 +11,18 @@ import { log } from "./logger.js";
 import sessionLogger from "./sessionLogger.js";
 import eventLogger, { EventCategory, EventLevel } from "./eventLogger.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+let __filename;
+let __dirname;
+try {
+  __filename = fileURLToPath(import.meta.url);
+  __dirname = path.dirname(__filename);
+} catch (e) {
+  // In some test environments import.meta may not behave as expected after
+  // transpilation. Fall back to process.cwd() to allow tests to import this
+  // module without failing at module-evaluation time.
+  __dirname = process.cwd();
+  __filename = path.join(__dirname, "index.js");
+}
 
 class PingManager {
   constructor() {

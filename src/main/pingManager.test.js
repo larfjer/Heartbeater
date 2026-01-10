@@ -1,17 +1,30 @@
 jest.mock("better-sqlite3");
 
-// Mock sessionLogger and eventLogger so we can verify integration
+// Mock electron early so ipcMain import won't error
+jest.mock("electron", () => ({
+  ipcMain: { handle: jest.fn() },
+  app: { getPath: () => "/tmp/heartbeater" },
+}));
+
+// Mock sessionLogger so we can verify integration
 jest.mock("./sessionLogger.js", () => ({
   logPing: jest.fn(),
 }));
 
+// Provide a mock that includes both default and named exports
 const mockEventLogger = {
   log: jest.fn(),
   info: jest.fn(),
   warning: jest.fn(),
   error: jest.fn(),
 };
-jest.mock("./eventLogger.js", () => mockEventLogger);
+const EventCategory = { PING: "ping", DEVICE: "device" };
+const EventLevel = { INFO: "info", WARNING: "warning" };
+jest.mock("./eventLogger.js", () => ({
+  default: mockEventLogger,
+  EventCategory,
+  EventLevel,
+}));
 
 // Mock worker_threads Worker using a global workers array so tests can inspect
 // created workers. The mock factory must not reference out-of-scope variables.
@@ -33,7 +46,7 @@ jest.mock("worker_threads", () => ({
   },
 }));
 
-describe.skip("PingManager", () => {
+describe("PingManager", () => {
   beforeEach(() => {
     jest.resetModules();
     global.__WORKERS = [];
@@ -43,8 +56,7 @@ describe.skip("PingManager", () => {
 
     // import the module after mocks are in place so ESM syntax is transformed
     // by babel-jest
-    const pingModule = await import("./pingManager.js");
-    const pingManager = pingModule.default;
+    const { pingManager } = await import("./pingManager.js");
 
     // start a ping with logging enabled
     const config = {
