@@ -81,6 +81,7 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--md-sys-color-on-surface);
+  white-space: nowrap;
 }
 
 /* Status-specific styles */
@@ -93,20 +94,32 @@
   color: var(--md-sys-color-tertiary);
 }
 
+.connectivity-indicator[data-status="connected"] .status-dot {
+  background-color: rgb(0, 255, 0);
+}
+
 .connectivity-indicator[data-status="high-jitter"] {
-  background-color: rgba(255, 193, 7, 0.1);
+  background-color: rgba(255, 191, 0, 0.1);
 }
 
 .connectivity-indicator[data-status="high-jitter"] .status-text {
   color: var(--md-sys-color-warning);
 }
 
+.connectivity-indicator[data-status="high-jitter"] .status-dot {
+  background-color: rgb(255, 191, 0);
+}
+
 .connectivity-indicator[data-status="disconnected"] {
-  background-color: rgba(255, 0, 0, 0.1);
+  background-color: rgba(128, 0, 0, 0.1);
 }
 
 .connectivity-indicator[data-status="disconnected"] .status-text {
   color: var(--md-sys-color-error);
+}
+
+.connectivity-indicator[data-status="disconnected"] .status-dot {
+  background-color: rgba(255, 0, 0);
 }
 
 .connectivity-indicator[data-status="not-running"] {
@@ -114,6 +127,10 @@
 }
 
 .connectivity-indicator[data-status="not-running"] .status-text {
+  color: var(--md-sys-color-outline);
+}
+
+.connectivity-indicator[data-status="not-running"] .status-dot {
   color: var(--md-sys-color-outline);
 }
 

@@ -72,6 +72,9 @@ export async function renderGroupConnectivity() {
       "devicesTableContainer",
     );
 
+    // Track ping state for each group
+    const pingState = {};
+
     // Handle group selection
     groupSelector.addEventListener("change", async (e) => {
       const selectedGroupId = e.target.value;
@@ -85,8 +88,6 @@ export async function renderGroupConnectivity() {
         return;
       }
 
-      startAllPingBtn.disabled = false;
-      stopAllPingBtn.disabled = false;
       pingIntervalInput.disabled = false;
 
       // Load saved interval for this group or use default
@@ -94,6 +95,11 @@ export async function renderGroupConnectivity() {
         `pingInterval_${selectedGroupId}`,
       );
       pingIntervalInput.value = savedInterval || "5000";
+
+      // Update button states based on current ping state
+      const isRunning = pingState[selectedGroupId] || false;
+      startAllPingBtn.disabled = isRunning;
+      stopAllPingBtn.disabled = !isRunning;
 
       // Get devices in selected group
       const devicesResult =
@@ -131,6 +137,11 @@ export async function renderGroupConnectivity() {
         }
       }
 
+      // Update ping state and button states
+      pingState[selectedGroupId] = true;
+      startAllPingBtn.disabled = true;
+      stopAllPingBtn.disabled = false;
+
       console.log("[Renderer] Started pinging all devices in group");
     });
 
@@ -153,6 +164,11 @@ export async function renderGroupConnectivity() {
           console.error(`Error stopping ping for ${device.id}:`, error);
         }
       }
+
+      // Update ping state and button states
+      pingState[selectedGroupId] = false;
+      startAllPingBtn.disabled = false;
+      stopAllPingBtn.disabled = true;
 
       console.log("[Renderer] Stopped pinging all devices in group");
     });
@@ -231,30 +247,24 @@ function updateConnectivityIndicator(deviceId, status, responseTime) {
   );
   if (!indicator) return;
 
-  let statusColor = "var(--md-sys-color-outline)"; // Gray default
+  const statusColor = "var(--md-sys-color-outline)"; // Gray default
   let statusText = "Not Running";
   let dataStatus = "not-running";
 
   if (status === "available" || status === "responding") {
-    statusColor = "var(--md-sys-color-tertiary)"; // Green
     statusText = "Connected";
     dataStatus = "connected";
   } else if (status === "high-jitter") {
-    statusColor = "var(--md-sys-color-warning)"; // Yellow
     statusText = "High Jitter";
     dataStatus = "high-jitter";
   } else if (status === "unavailable" || status === "unresponsive") {
-    statusColor = "var(--md-sys-color-error)"; // Red
     statusText = "Disconnected";
     dataStatus = "disconnected";
   }
 
   indicator.dataset.status = dataStatus;
-
-  const dot = indicator.querySelector(".status-dot");
   const text = indicator.querySelector(".status-text");
 
-  if (dot) dot.style.backgroundColor = statusColor;
   if (text) text.textContent = statusText;
 
   // Update response time if available
@@ -279,10 +289,8 @@ function resetDeviceMetrics(deviceId) {
 
   // Reset status to grey "Not Running"
   indicator.dataset.status = "not-running";
-  const dot = indicator.querySelector(".status-dot");
   const text = indicator.querySelector(".status-text");
 
-  if (dot) dot.style.backgroundColor = "var(--md-sys-color-outline)";
   if (text) text.textContent = "Not Running";
 
   // Clear response time and jitter columns
