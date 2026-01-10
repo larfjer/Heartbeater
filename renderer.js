@@ -17,6 +17,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     await import("./src/renderer/addToGroupModal.js");
   const { initializeAddDeviceManually } =
     await import("./src/renderer/addDeviceManuallyModal.js");
+  const { renderGroupConnectivity } =
+    await import("./src/renderer/groupConnectivityUI.js");
+  const { setupPingControlListeners } =
+    await import("./src/renderer/deviceScanUI.js");
 
   // Initialize all UI components
   initializeTabs();
@@ -24,4 +28,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   initializeAddToGroupModal();
   initializeCreateNewGroup();
   initializeAddDeviceManually();
+  setupPingControlListeners();
+
+  // Render the initial "Group Connectivity" tab
+  renderGroupConnectivity();
 });

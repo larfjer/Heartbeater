@@ -1,0 +1,126 @@
+/* Group Connectivity UI Styles */
+
+.connectivity-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.connectivity-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.connectivity-control-group .form-label {
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+.connectivity-control-group .form-input {
+  padding: 8px 12px;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--md-sys-color-on-surface);
+  background-color: var(--md-sys-color-surface);
+  font-family: inherit;
+}
+
+.connectivity-control-group .form-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.connectivity-control-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.connectivity-control-buttons .md-button {
+  flex: 1;
+}
+
+.connectivity-control-buttons .md-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Connectivity Table Styles */
+
+.connectivity-status-column {
+  width: 150px;
+  text-align: center;
+}
+
+.connectivity-status-cell {
+  text-align: center;
+}
+
+.connectivity-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: var(--md-sys-color-surface-dim);
+}
+
+.connectivity-indicator .status-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--md-sys-color-outline);
+  flex-shrink: 0;
+}
+
+.connectivity-indicator .status-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+/* Status-specific styles */
+
+.connectivity-indicator[data-status="connected"] {
+  background-color: rgba(0, 128, 0, 0.1);
+}
+
+.connectivity-indicator[data-status="connected"] .status-text {
+  color: var(--md-sys-color-tertiary);
+}
+
+.connectivity-indicator[data-status="high-jitter"] {
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.connectivity-indicator[data-status="high-jitter"] .status-text {
+  color: var(--md-sys-color-warning);
+}
+
+.connectivity-indicator[data-status="disconnected"] {
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+.connectivity-indicator[data-status="disconnected"] .status-text {
+  color: var(--md-sys-color-error);
+}
+
+.connectivity-indicator[data-status="not-running"] {
+  background-color: rgba(128, 128, 128, 0.1);
+}
+
+.connectivity-indicator[data-status="not-running"] .status-text {
+  color: var(--md-sys-color-outline);
+}
+
+.connectivity-indicator[data-status="unknown"] {
+  background-color: var(--md-sys-color-surface-dim);
+}
+
+.connectivity-indicator[data-status="unknown"] .status-text {
+  color: var(--md-sys-color-outline);
+}

@@ -4,6 +4,7 @@
 
 import { domElements } from "./domElements.js";
 import { renderGroups } from "./groupsUI.js";
+import { renderGroupConnectivity } from "./groupConnectivityUI.js";
 
 export function initializeTabs() {
   const { tabs, tabContents } = domElements;
@@ -23,7 +24,7 @@ export function initializeTabs() {
       console.log("[Renderer] Switched to tab:", tabName);
 
       if (tabName === "group-connectivity") {
-        // TODO: Render group connectivity
+        renderGroupConnectivity();
       } else if (tabName === "device-group") {
         renderGroups();
       }
