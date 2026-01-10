@@ -5,6 +5,7 @@
 import { app, BrowserWindow } from "electron";
 import { log } from "./logger.js";
 import { createWindow } from "./window.js";
+import eventLogger from "./eventLogger.js";
 
 export function registerAppLifecycleHandlers() {
   app.on("activate", () => {
@@ -21,6 +22,12 @@ export function registerAppLifecycleHandlers() {
       log.info("Quitting app (non-macOS)");
       app.quit();
     }
+  });
+
+  app.on("before-quit", () => {
+    // Log application shutdown and close the event logger
+    eventLogger.info("system", "app_shutdown", "Application shutting down");
+    eventLogger.close();
   });
 }
 

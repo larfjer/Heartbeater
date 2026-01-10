@@ -67,6 +67,24 @@ const loggingApi = {
     ipcRenderer.invoke("logging:start-session", groupId, groupName),
   stopSession: (groupId) => ipcRenderer.invoke("logging:stop-session", groupId),
 };
+
+const eventsApi = {
+  log: (eventData) => ipcRenderer.invoke("events:log", eventData),
+  queryByTime: (startTime, endTime, filters) =>
+    ipcRenderer.invoke("events:query-by-time", startTime, endTime, filters),
+  queryByGroup: (groupId, options) =>
+    ipcRenderer.invoke("events:query-by-group", groupId, options),
+  queryByDevice: (deviceId, options) =>
+    ipcRenderer.invoke("events:query-by-device", deviceId, options),
+  getRecent: (limit, filters) =>
+    ipcRenderer.invoke("events:get-recent", limit, filters),
+  getStatistics: (startTime, endTime, groupId) =>
+    ipcRenderer.invoke("events:get-statistics", startTime, endTime, groupId),
+  getTimeRange: () => ipcRenderer.invoke("events:get-time-range"),
+  prune: (beforeDate) => ipcRenderer.invoke("events:prune", beforeDate),
+  getLevels: () => ipcRenderer.invoke("events:get-levels"),
+  getCategories: () => ipcRenderer.invoke("events:get-categories"),
+};
 contextBridge.exposeInMainWorld("api", {
   scanNetwork: scannerApi.scanNetwork,
   scanDeviceDetails: scannerApi.scanDeviceDetails,
@@ -103,6 +121,18 @@ contextBridge.exposeInMainWorld("api", {
   logging: {
     startSession: loggingApi.startSession,
     stopSession: loggingApi.stopSession,
+  },
+  events: {
+    log: eventsApi.log,
+    queryByTime: eventsApi.queryByTime,
+    queryByGroup: eventsApi.queryByGroup,
+    queryByDevice: eventsApi.queryByDevice,
+    getRecent: eventsApi.getRecent,
+    getStatistics: eventsApi.getStatistics,
+    getTimeRange: eventsApi.getTimeRange,
+    prune: eventsApi.prune,
+    getLevels: eventsApi.getLevels,
+    getCategories: eventsApi.getCategories,
   },
   history: {
     getSessions: (groupName) =>

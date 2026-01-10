@@ -21,7 +21,9 @@ import { registerDeviceStorageHandlers } from "./src/main/ipcDeviceHandlers.js";
 import { registerGroupStorageHandlers } from "./src/main/ipcGroupHandlers.js";
 import { registerGroupDeviceHandlers } from "./src/main/ipcGroupDeviceHandlers.js";
 import setupLoggingHandlers from "./src/main/ipcLoggingHandlers.js";
+import setupEventLogHandlers from "./src/main/ipcEventLogHandlers.js";
 import { registerPingHandlers } from "./src/main/pingManager.js";
+import eventLogger from "./src/main/eventLogger.js";
 
 // Initialize storage
 let storage;
@@ -35,6 +37,7 @@ function registerIpcHandlers() {
   registerGroupStorageHandlers(storage);
   registerGroupDeviceHandlers(storage);
   setupLoggingHandlers();
+  setupEventLogHandlers();
   registerPingHandlers(mainWindow);
 }
 
@@ -42,6 +45,11 @@ function registerIpcHandlers() {
 app.whenReady().then(() => {
   log.info("App is ready");
   storage = new GroupStorageService();
+
+  // Initialize the global event logger
+  eventLogger.initialize();
+  eventLogger.info("system", "app_started", "Application started");
+
   mainWindow = initializeApp(storage);
   registerIpcHandlers();
 });

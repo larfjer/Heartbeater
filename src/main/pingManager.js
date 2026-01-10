@@ -9,6 +9,7 @@ import { fileURLToPath } from "url";
 import { ipcMain } from "electron";
 import { log } from "./logger.js";
 import sessionLogger from "./sessionLogger.js";
+import eventLogger, { EventCategory, EventLevel } from "./eventLogger.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -55,6 +56,9 @@ class PingManager {
         } else if (type === "stopped") {
           log.info(msg);
         } else if (type === "status") {
+          // Track previous availability to detect transitions
+          const previouslyAvailable = isAvailable;
+
           // Detailed status signal from worker
           isAvailable = status === "available" || status === "responding";
           lastStatusUpdate = {
@@ -64,9 +68,48 @@ class PingManager {
             timestamp: message.timestamp,
           };
 
-          // log.debug(
-          //   `Device ${deviceId} (${statusData.ipAddress}) status: ${status}`,
-          // );
+          // Log significant status transitions to the event log
+          if (previouslyAvailable !== isAvailable) {
+            eventLogger.log({
+              level: isAvailable ? EventLevel.INFO : EventLevel.WARNING,
+              category: EventCategory.DEVICE,
+              eventType: isAvailable
+                ? "device_available"
+                : "device_unavailable",
+              message: `Device ${statusData.ipAddress} became ${isAvailable ? "available" : "unavailable"}`,
+              deviceId,
+              deviceIp: statusData.ipAddress,
+              groupId: config?.logging?.groupId || null,
+              groupName: config?.logging?.groupName || null,
+              source: "pingWorker",
+              metadata: {
+                status,
+                responseTime: statusData.responseTime,
+                consecutiveFailures: statusData.consecutiveFailures,
+                consecutiveSuccesses: statusData.consecutiveSuccesses,
+                coefficientOfVariation: statusData.coefficientOfVariation,
+              },
+            });
+          }
+
+          // Log poor connection events
+          if (status === "poor-connection") {
+            eventLogger.log({
+              level: EventLevel.WARNING,
+              category: EventCategory.PING,
+              eventType: "poor_connection",
+              message: `Poor connection detected for ${statusData.ipAddress}`,
+              deviceId,
+              deviceIp: statusData.ipAddress,
+              groupId: config?.logging?.groupId || null,
+              groupName: config?.logging?.groupName || null,
+              source: "pingWorker",
+              metadata: {
+                responseTime: statusData.responseTime,
+                coefficientOfVariation: statusData.coefficientOfVariation,
+              },
+            });
+          }
 
           // Notify renderer about detailed status update
           if (mainWindow && !mainWindow.isDestroyed()) {
@@ -92,6 +135,19 @@ class PingManager {
       // Handle worker errors
       worker.on("error", (error) => {
         log.error(`Worker error for device ${deviceId}:`, error);
+        eventLogger.error(
+          EventCategory.PING,
+          "worker_error",
+          `Worker error for device ${ipAddress}: ${error.message}`,
+          {
+            deviceId,
+            deviceIp: ipAddress,
+            groupId: config?.logging?.groupId || null,
+            groupName: config?.logging?.groupName || null,
+            source: "pingWorker",
+            metadata: { error: error.message },
+          },
+        );
       });
 
       // Handle worker exit
@@ -252,6 +308,22 @@ export function registerPingHandlers(mainWindow) {
           mainWindow,
           config,
         );
+
+        // Log ping start event
+        eventLogger.info(
+          EventCategory.PING,
+          "ping_started",
+          `Started pinging device ${ipAddress}`,
+          {
+            deviceId,
+            deviceIp: ipAddress,
+            groupId: config?.logging?.groupId || null,
+            groupName: config?.logging?.groupName || null,
+            source: "pingManager",
+            metadata: { intervalMs },
+          },
+        );
+
         return { success: true };
       } catch (error) {
         log.error(`Error starting ping for device ${deviceId}:`, error.message);
@@ -262,7 +334,25 @@ export function registerPingHandlers(mainWindow) {
 
   ipcMain.handle("ping:stop", (event, deviceId) => {
     try {
+      const workerInfo = pingManager.activeWorkers.get(deviceId);
+      const ipAddress = workerInfo?.ipAddress;
+
       pingManager.stopPing(deviceId);
+
+      // Log ping stop event
+      if (ipAddress) {
+        eventLogger.info(
+          EventCategory.PING,
+          "ping_stopped",
+          `Stopped pinging device ${ipAddress}`,
+          {
+            deviceId,
+            deviceIp: ipAddress,
+            source: "pingManager",
+          },
+        );
+      }
+
       return { success: true };
     } catch (error) {
       log.error(`Error stopping ping for device ${deviceId}:`, error.message);
