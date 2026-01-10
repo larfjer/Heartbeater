@@ -33,7 +33,13 @@ class SessionLogger {
       // Close existing session for this group if exists
       this.stopSession(groupId);
 
-      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const now = new Date();
+      // Format: YYYYMMDD-HHmmss (compact, sortable, parseable)
+      const timestamp = now
+        .toISOString()
+        .replace(/[-:]/g, "")
+        .replace("T", "-")
+        .slice(0, 15);
       const sanitizedGroupName = (groupName || groupId)
         .toString()
         .replace(/[^a-z0-9_\-.]/gi, "_");
@@ -126,16 +132,40 @@ class SessionLogger {
         .filter((file) => file.startsWith(prefix) && file.endsWith(".db"))
         .map((file) => {
           const timestampStr = file.replace(prefix, "").replace(".db", "");
+
+          // Calculate duration from database
+          let durationSeconds = 0;
+          try {
+            const dbPath = path.join(logsDir, file);
+            const db = new Database(dbPath, { readonly: true });
+            const firstRow = db
+              .prepare(
+                "SELECT timestamp_utc FROM pings ORDER BY id ASC LIMIT 1",
+              )
+              .get();
+            const lastRow = db
+              .prepare(
+                "SELECT timestamp_utc FROM pings ORDER BY id DESC LIMIT 1",
+              )
+              .get();
+            db.close();
+
+            if (firstRow && lastRow) {
+              const startTime = new Date(firstRow.timestamp_utc).getTime();
+              const endTime = new Date(lastRow.timestamp_utc).getTime();
+              durationSeconds = Math.floor((endTime - startTime) / 1000);
+            }
+          } catch (e) {
+            console.error(
+              `[SessionLogger] Error calculating duration for ${file}:`,
+              e,
+            );
+          }
+
           return {
             filename: file,
             timestamp: timestampStr,
-            // Convert back to readable date if needed, or let client handle it
-            displayDate: new Date(
-              timestampStr
-                .replace(/-/g, ":")
-                .replace(/:/, "-")
-                .replace(/:/, "-"),
-            ).toLocaleString(), // Heuristic cleanup
+            durationSeconds: durationSeconds,
           };
         })
         .sort((a, b) => b.filename.localeCompare(a.filename)); // Newest first

@@ -10,6 +10,52 @@
   gap: var(--spacing-xl);
 }
 
+.history-legend-container {
+  flex-shrink: 0;
+}
+
+.legend-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.legend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-full, 9999px);
+  border: 1px solid var(--md-sys-color-outline);
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface-variant);
+  cursor: pointer;
+  font-size: var(--font-size-body-small, 12px);
+  transition: all 0.2s ease;
+  opacity: 0.5;
+}
+
+.legend-pill.active {
+  background-color: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+  opacity: 1;
+}
+
+.legend-pill:hover {
+  background-color: var(--md-sys-color-surface-container-highest);
+}
+
+.legend-pill-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-pill-label {
+  white-space: nowrap;
+}
+
 .history-chart-container {
   flex: 1;
   display: flex;

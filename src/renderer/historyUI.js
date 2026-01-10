@@ -30,6 +30,9 @@ export async function renderHistory() {
                 </div>
             </div>
         </div>
+        <div class="card history-legend-container">
+            <div id="historyLegendPills" class="legend-pills"></div>
+        </div>
         <div class="card history-chart-container">
             <canvas id="historyChart"></canvas>
         </div>
@@ -71,9 +74,10 @@ export async function renderHistory() {
           sessionsResult.sessions.forEach((s) => {
             const opt = document.createElement("option");
             opt.value = s.filename;
-            // Format: "YYYY-MM-DD HH:MM:SS" - derived from filename usually
-            // Filename: timeseries_GroupName_2026-01-10T10-10-10-000Z.db
-            opt.textContent = formatSessionLabel(s.filename);
+            opt.textContent = formatSessionLabel(
+              s.timestamp,
+              s.durationSeconds,
+            );
             sessionSelector.appendChild(opt);
           });
           sessionSelector.disabled = false;
@@ -101,7 +105,7 @@ export async function renderHistory() {
       console.log("Session data result:", result);
       if (result.success) {
         console.log("Raw data:", result.data);
-        renderChart(canvas, result.data);
+        await renderChart(canvas, result.data);
       } else {
         console.error("Failed to load session data", result.error);
       }
@@ -111,34 +115,76 @@ export async function renderHistory() {
   });
 }
 
-function formatSessionLabel(filename) {
-  // Try to extract timestamp using regex: matches _YYYY-MM-DDThh-mm-ss-mmmZ.db at the end
-  const match = filename.match(
-    /_(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z)\.db$/,
-  );
-  if (match && match[1]) {
-    return match[1];
+function formatSessionLabel(timestamp, durationSeconds) {
+  // Parse timestamp format: YYYYMMDD-HHmmss
+  let dateStr = "Unknown";
+  try {
+    // Parse YYYYMMDD-HHmmss format
+    const year = timestamp.slice(0, 4);
+    const month = timestamp.slice(4, 6);
+    const day = timestamp.slice(6, 8);
+    const hour = timestamp.slice(9, 11);
+    const minute = timestamp.slice(11, 13);
+    const second = timestamp.slice(13, 15);
+
+    const date = new Date(
+      `${year}-${month}-${day}T${hour}:${minute}:${second}Z`,
+    );
+
+    // Format as dd.mm.yyyy hh:mm (local time)
+    const localDay = date.getDate().toString().padStart(2, "0");
+    const localMonth = (date.getMonth() + 1).toString().padStart(2, "0");
+    const localYear = date.getFullYear();
+    const localHour = date.getHours().toString().padStart(2, "0");
+    const localMinute = date.getMinutes().toString().padStart(2, "0");
+
+    dateStr = `${localDay}.${localMonth}.${localYear} ${localHour}:${localMinute}`;
+  } catch (e) {
+    console.error("Error parsing timestamp:", e);
+    dateStr = timestamp;
   }
 
-  // Fallback to splitting if regex fails (backward compatibility)
-  const parts = filename.split("_");
-  if (parts.length >= 3) {
-    // This might include parts of the group name if it contained underscores
-    return parts.slice(2).join("_").replace(".db", "");
+  // Format duration as hh:mm:ss
+  let durationStr = "00:00:00";
+  if (durationSeconds && durationSeconds > 0) {
+    const hours = Math.floor(durationSeconds / 3600);
+    const minutes = Math.floor((durationSeconds % 3600) / 60);
+    const seconds = durationSeconds % 60;
+    durationStr = [
+      hours.toString().padStart(2, "0"),
+      minutes.toString().padStart(2, "0"),
+      seconds.toString().padStart(2, "0"),
+    ].join(":");
   }
-  return filename;
+
+  return `${dateStr} - ${durationStr}`;
 }
 
-function renderChart(canvas, data) {
+async function renderChart(canvas, data) {
   // Data: { timestamp_utc, target, latency_ms, status, ... }
 
-  console.log("renderChart called with data:", data);
-  console.log("Data length:", data.length);
-  console.log("First row:", data[0]);
-  if (data.length > 0) {
-    console.log("First row keys:", Object.keys(data[0]));
-    console.log("First row values:", JSON.stringify(data[0], null, 2));
+  // Build a mapping from IP address to friendly name
+  const ipToName = {};
+  try {
+    const devicesResult = await window.api.storage.getAllDevices();
+    if (
+      devicesResult &&
+      devicesResult.success &&
+      Array.isArray(devicesResult.devices)
+    ) {
+      devicesResult.devices.forEach((device) => {
+        if (device.ip) {
+          // Use friendlyName if available, otherwise fall back to name, then IP
+          ipToName[device.ip] = device.friendlyName || device.name || device.ip;
+        }
+      });
+    }
+  } catch (e) {
+    console.error("Failed to fetch device names:", e);
   }
+
+  // Helper function to get display name for a target IP
+  const getDisplayName = (ip) => ipToName[ip] || ip;
 
   // 1. Group all data by target
   const deviceTargets = {};
@@ -171,7 +217,6 @@ function renderChart(canvas, data) {
   );
 
   console.log("Total unique timestamps:", sortedTimestamps.length);
-  console.log("Sorted timestamps:", sortedTimestamps);
 
   // Create labels from sorted timestamps
   const shortLabels = sortedTimestamps.map((ts) =>
@@ -187,13 +232,11 @@ function renderChart(canvas, data) {
         (row) => row.timestamp_utc === ts,
       );
       if (point) {
-        console.log(`Device ${target} at ${ts}: latency=${point.latency_ms}ms`);
         return point.latency_ms;
       }
       // Return null if device has no data at this timestamp
       return null;
     });
-    console.log(`Dataset for ${target}:`, deviceData);
 
     const colors = [
       "rgb(255, 99, 132)",
@@ -205,7 +248,7 @@ function renderChart(canvas, data) {
     ];
 
     return {
-      label: target,
+      label: getDisplayName(target),
       data: deviceData,
       borderColor: colors[index % colors.length],
       backgroundColor: colors[index % colors.length],
@@ -227,6 +270,11 @@ function renderChart(canvas, data) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
       scales: {
         y: {
           beginAtZero: true,
@@ -247,5 +295,39 @@ function renderChart(canvas, data) {
         intersect: false,
       },
     },
+  });
+
+  // Render custom legend pills
+  renderLegendPills(chartInstance);
+}
+
+function renderLegendPills(chart) {
+  const container = document.getElementById("historyLegendPills");
+  container.innerHTML = "";
+
+  chart.data.datasets.forEach((dataset, index) => {
+    const pill = document.createElement("button");
+    pill.className = "legend-pill active";
+    pill.dataset.index = index;
+
+    const colorDot = document.createElement("span");
+    colorDot.className = "legend-pill-dot";
+    colorDot.style.backgroundColor = dataset.borderColor;
+
+    const label = document.createElement("span");
+    label.className = "legend-pill-label";
+    label.textContent = dataset.label;
+
+    pill.appendChild(colorDot);
+    pill.appendChild(label);
+
+    pill.addEventListener("click", () => {
+      const isVisible = chart.isDatasetVisible(index);
+      chart.setDatasetVisibility(index, !isVisible);
+      pill.classList.toggle("active", !isVisible);
+      chart.update();
+    });
+
+    container.appendChild(pill);
   });
 }
