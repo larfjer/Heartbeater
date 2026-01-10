@@ -8,6 +8,7 @@
     "start": "electron .",
     "build": "electron-builder",
     "prepare": "husky install",
+    "test": "jest",
     "lint": "npm run lint:js && npm run lint:html",
     "lint:js": "eslint --config ./config/eslint.config.js --ext .js .",
     "lint:html": "htmlhint --config ./config/.htmlhintrc index.html",
@@ -20,14 +21,21 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@babel/core": "^7.28.5",
+    "@babel/preset-env": "^7.28.5",
     "@electron/rebuild": "^4.0.2",
     "@eslint/js": "^9.39.2",
+    "@jest/globals": "^30.2.0",
+    "babel-jest": "^30.2.0",
     "electron": "^33.0.0",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.4",
     "htmlhint": "^1.8.0",
     "husky": "^9.1.7",
+    "jest": "^30.2.0",
+    "jest-transform-stub": "^2.0.0",
     "prettier": "^3.7.4"
   },
   "dependencies": {
@@ -38,5 +46,17 @@
   },
   "prettier": {
     "ignoreUnknown": true
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ]
+    ]
   }
 }

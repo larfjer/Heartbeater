@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import prettier from "eslint-plugin-prettier/recommended";
+import importPlugin from "eslint-plugin-import";
 
 export default [
   {
@@ -21,6 +22,7 @@ export default [
         __filename: "readonly",
       },
     },
+    plugins: { import: importPlugin },
     rules: {
       "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "no-console": "off",
@@ -35,6 +37,23 @@ export default [
         window: "readonly",
         localStorage: "readonly",
         alert: "readonly",
+      },
+    },
+  },
+  {
+    files: ["**/*.test.js"],
+    languageOptions: {
+      globals: {
+        jest: "readonly",
+        describe: "readonly",
+        test: "readonly",
+        it: "readonly",
+        beforeEach: "readonly",
+        afterEach: "readonly",
+        beforeAll: "readonly",
+        afterAll: "readonly",
+        expect: "readonly",
+        global: "writable",
       },
     },
   },
