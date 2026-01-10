@@ -3,6 +3,7 @@
  */
 
 import { domElements, appState } from "./domElements.js";
+import { nowIso } from "../main/timeUtils.js";
 
 /**
  * Opens the add device manually modal with optional group preselection
@@ -136,7 +137,7 @@ export function initializeAddDeviceManually() {
         manufacturer: manufacturer || "Unknown",
         friendlyName: friendlyName || null,
         groupIds: [],
-        addedAt: new Date().toISOString(),
+        addedAt: nowIso(),
       };
 
       // Add device to storage

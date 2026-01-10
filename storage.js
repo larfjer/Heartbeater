@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { app } from "electron";
+import { nowIso } from "./src/main/timeUtils.js";
 
 class GroupStorageService {
   constructor() {
@@ -57,7 +58,7 @@ class GroupStorageService {
       ...device,
       id: deviceId,
       groupIds: [],
-      addedAt: new Date().toISOString(),
+      addedAt: nowIso(),
     };
     data.devices[deviceId] = newDevice;
     this.saveData(data);
@@ -124,8 +125,8 @@ class GroupStorageService {
       name,
       description,
       deviceIds: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
     };
     data.groups[groupId] = newGroup;
     this.saveData(data);
@@ -137,7 +138,7 @@ class GroupStorageService {
     if (data.groups[groupId]) {
       data.groups[groupId].name = name;
       data.groups[groupId].description = description;
-      data.groups[groupId].updatedAt = new Date().toISOString();
+      data.groups[groupId].updatedAt = nowIso();
       this.saveData(data);
       return true;
     }

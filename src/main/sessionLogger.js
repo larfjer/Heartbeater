@@ -2,6 +2,7 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 import { app } from "electron";
+import { nowIso, parseIso } from "./timeUtils.js";
 
 class SessionLogger {
   constructor() {
@@ -33,10 +34,8 @@ class SessionLogger {
       // Close existing session for this group if exists
       this.stopSession(groupId);
 
-      const now = new Date();
-      // Format: YYYYMMDD-HHmmss (compact, sortable, parseable)
-      const timestamp = now
-        .toISOString()
+      // Use centralized ISO timestamp and derive compact sortable label
+      const timestamp = nowIso()
         .replace(/[-:]/g, "")
         .replace("T", "-")
         .slice(0, 15);
@@ -151,8 +150,9 @@ class SessionLogger {
             db.close();
 
             if (firstRow && lastRow) {
-              const startTime = new Date(firstRow.timestamp_utc).getTime();
-              const endTime = new Date(lastRow.timestamp_utc).getTime();
+              const startTime =
+                parseIso(firstRow.timestamp_utc)?.getTime() || 0;
+              const endTime = parseIso(lastRow.timestamp_utc)?.getTime() || 0;
               durationSeconds = Math.floor((endTime - startTime) / 1000);
             }
           } catch (e) {

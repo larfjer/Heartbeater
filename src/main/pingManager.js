@@ -3,10 +3,7 @@
  * Each device runs in its own worker thread for true parallel execution
  */
 
-import { ipcMain } from "electron";
 import { log } from "./logger.js";
-import sessionLogger from "./sessionLogger.js";
-import eventLogger, { EventCategory, EventLevel } from "./eventLogger.js";
 import { pingWorkerManager } from "./pingWorkerManager.js";
 
 class PingManager {

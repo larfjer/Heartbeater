@@ -7,6 +7,7 @@
 
 import { execFile } from "child_process";
 import { parentPort } from "worker_threads";
+import { nowIso, formatLocal } from "./timeUtils.js";
 
 // State for this worker
 let isRunning = false;
@@ -99,12 +100,11 @@ function determineConnectionStatus(responseTimeValue, previousStatus) {
  * Send log data to main thread
  */
 function sendLogData(ipAddress, result, cv) {
-  const now = new Date();
   parentPort.postMessage({
     type: "log_attempt",
     data: {
-      timestamp_utc: now.toISOString(),
-      timestamp_local: now.toString(),
+      timestamp_utc: nowIso(),
+      timestamp_local: formatLocal(),
       target: ipAddress,
       latency_ms: result.success ? result.responseTime : 0,
       jitter_cv: cv,
@@ -118,7 +118,7 @@ function sendLogData(ipAddress, result, cv) {
 function sendStatusSignal(status) {
   parentPort.postMessage({
     type: "status",
-    timestamp: Date.now(),
+    timestamp: nowIso(),
     ...status,
   });
 }

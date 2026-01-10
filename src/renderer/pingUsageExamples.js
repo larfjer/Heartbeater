@@ -158,9 +158,13 @@ async function getDeviceDetailedStatus(deviceId) {
       console.log(`Device ${deviceId} (${ipAddress}):`);
       console.log(`  Status: ${isAvailable ? "AVAILABLE" : "UNAVAILABLE"}`);
       if (lastStatusUpdate) {
-        console.log(
-          `  Last update: ${new Date(lastStatusUpdate.timestamp).toISOString()}`,
-        );
+        // Ensure timestamp displayed as ISO; worker now sends ISO timestamps
+        try {
+          const ts = new Date(lastStatusUpdate.timestamp).toISOString();
+          console.log(`  Last update: ${ts}`);
+        } catch {
+          console.log(`  Last update: ${lastStatusUpdate.timestamp}`);
+        }
         console.log(`  Response time: ${lastStatusUpdate.responseTime}ms`);
         console.log(
           `  Consecutive failures: ${lastStatusUpdate.consecutiveFailures}`,

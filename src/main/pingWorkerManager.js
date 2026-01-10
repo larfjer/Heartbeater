@@ -8,7 +8,7 @@ import eventLogger, { EventCategory, EventLevel } from "./eventLogger.js";
 const __filename = (() => {
   try {
     return fileURLToPath(import.meta.url);
-  } catch (e) {
+  } catch {
     return path.join(process.cwd(), "index.js");
   }
 })();

@@ -1,5 +1,6 @@
 import "../../node_modules/chart.js/dist/chart.umd.js";
 const Chart = window.Chart;
+import { parseIso } from "../main/timeUtils.js";
 
 let latencyChartInstance = null;
 let jitterChartInstance = null;
@@ -232,8 +233,8 @@ async function renderCharts(latencyCanvas, jitterCanvas, data) {
   Object.keys(deviceTargets).forEach((target) => {
     deviceTargets[target].sort(
       (a, b) =>
-        new Date(a.timestamp_utc).getTime() -
-        new Date(b.timestamp_utc).getTime(),
+        (parseIso(a.timestamp_utc)?.getTime() || 0) -
+        (parseIso(b.timestamp_utc)?.getTime() || 0),
     );
   });
 
@@ -243,14 +244,14 @@ async function renderCharts(latencyCanvas, jitterCanvas, data) {
     allTimestamps.add(row.timestamp_utc);
   });
   const sortedTimestamps = Array.from(allTimestamps).sort(
-    (a, b) => new Date(a).getTime() - new Date(b).getTime(),
+    (a, b) => (parseIso(a)?.getTime() || 0) - (parseIso(b)?.getTime() || 0),
   );
 
   console.log("Total unique timestamps:", sortedTimestamps.length);
 
   // Create labels from sorted timestamps
-  const shortLabels = sortedTimestamps.map((ts) =>
-    new Date(ts).toLocaleTimeString(),
+  const shortLabels = sortedTimestamps.map(
+    (ts) => parseIso(ts)?.toLocaleTimeString() || ts,
   );
 
   const colors = [

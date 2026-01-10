@@ -211,3 +211,14 @@ The original monolithic files are preserved:
 - `main.old.js` (if created) - Original main.js
 
 These can be referenced for comparison or reverted if issues arise.
+
+## Recent Changes (2026-01-10)
+
+- Added centralized time utilities: `src/main/timeUtils.js` (`nowIso`, `toIso8601`, `formatLocal`, `parseIso`).
+- Added logging helpers: `src/main/loggingUtils.js` (`withLogContext`, `formatMessage`).
+- Refactored `src/main/logger.js` to use `nowIso()` and `formatMessage()` for consistent timestamps and message formatting.
+- Replaced ad-hoc `new Date().toISOString()` usages in `storage.js` with `nowIso()`.
+- Updated `src/main/eventLogger.js` to use `nowIso()` and improved error formatting via `formatMessage()`.
+- Ran lint autofix and resolved remaining warnings where safe; a few unused-variable warnings remain in `src/main/pingManager.js` and `src/main/pingWorkerManager.js` to be handled during targeted refactors.
+
+These changes centralize time and logging behavior to improve consistency and make future internationalization or formatting changes straightforward.
