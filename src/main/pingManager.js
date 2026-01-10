@@ -3,26 +3,11 @@
  * Each device runs in its own worker thread for true parallel execution
  */
 
-import { Worker } from "worker_threads";
-import path from "path";
-import { fileURLToPath } from "url";
 import { ipcMain } from "electron";
 import { log } from "./logger.js";
 import sessionLogger from "./sessionLogger.js";
 import eventLogger, { EventCategory, EventLevel } from "./eventLogger.js";
-
-let __filename;
-let __dirname;
-try {
-  __filename = fileURLToPath(import.meta.url);
-  __dirname = path.dirname(__filename);
-} catch (e) {
-  // In some test environments import.meta may not behave as expected after
-  // transpilation. Fall back to process.cwd() to allow tests to import this
-  // module without failing at module-evaluation time.
-  __dirname = process.cwd();
-  __filename = path.join(__dirname, "index.js");
-}
+import { pingWorkerManager } from "./pingWorkerManager.js";
 
 class PingManager {
   constructor() {
@@ -38,157 +23,14 @@ class PingManager {
    * @param {Object} config - Configuration object with cvThreshold and responseTimeThreshold
    */
   startPing(deviceId, ipAddress, intervalMs, mainWindow, config) {
-    // Stop any existing worker for this device
-    if (this.activeWorkers.has(deviceId)) {
-      this.stopPing(deviceId);
-    }
-
-    try {
-      // Create worker thread for this device
-      const workerPath = path.join(__dirname, "pingWorker.js");
-      const worker = new Worker(workerPath);
-
-      let isAvailable = true;
-      let lastStatusUpdate = null;
-
-      // Handle messages from the worker
-      worker.on("message", (message) => {
-        const {
-          type,
-          status,
-          available,
-          message: msg,
-          ...statusData
-        } = message;
-
-        if (type === "started") {
-          log.info(msg);
-        } else if (type === "stopped") {
-          log.info(msg);
-        } else if (type === "status") {
-          // Track previous availability to detect transitions
-          const previouslyAvailable = isAvailable;
-
-          // Detailed status signal from worker
-          isAvailable = status === "available" || status === "responding";
-          lastStatusUpdate = {
-            ...statusData,
-            status,
-            deviceId,
-            timestamp: message.timestamp,
-          };
-
-          // Log significant status transitions to the event log
-          if (previouslyAvailable !== isAvailable) {
-            eventLogger.log({
-              level: isAvailable ? EventLevel.INFO : EventLevel.WARNING,
-              category: EventCategory.DEVICE,
-              eventType: isAvailable
-                ? "device_available"
-                : "device_unavailable",
-              message: `Device ${statusData.ipAddress} became ${isAvailable ? "available" : "unavailable"}`,
-              deviceId,
-              deviceIp: statusData.ipAddress,
-              groupId: config?.logging?.groupId || null,
-              groupName: config?.logging?.groupName || null,
-              source: "pingWorker",
-              metadata: {
-                status,
-                responseTime: statusData.responseTime,
-                consecutiveFailures: statusData.consecutiveFailures,
-                consecutiveSuccesses: statusData.consecutiveSuccesses,
-                coefficientOfVariation: statusData.coefficientOfVariation,
-              },
-            });
-          }
-
-          // Log poor connection events
-          if (status === "poor-connection") {
-            eventLogger.log({
-              level: EventLevel.WARNING,
-              category: EventCategory.PING,
-              eventType: "poor_connection",
-              message: `Poor connection detected for ${statusData.ipAddress}`,
-              deviceId,
-              deviceIp: statusData.ipAddress,
-              groupId: config?.logging?.groupId || null,
-              groupName: config?.logging?.groupName || null,
-              source: "pingWorker",
-              metadata: {
-                responseTime: statusData.responseTime,
-                coefficientOfVariation: statusData.coefficientOfVariation,
-              },
-            });
-          }
-
-          // Notify renderer about detailed status update
-          if (mainWindow && !mainWindow.isDestroyed()) {
-            mainWindow.webContents.send("device:status-updated", {
-              deviceId,
-              ...lastStatusUpdate,
-            });
-          }
-        } else if (type === "log_attempt") {
-          // Check config from closure
-          if (config?.logging?.enabled && config?.logging?.groupId) {
-            // log.debug(`Received log attempt for ${config.logging.groupId}`);
-            sessionLogger.logPing(config.logging.groupId, message.data);
-          } else {
-            // log.debug(`Log attempt skipped. Enabled: ${config?.logging?.enabled}, GroupId: ${config?.logging?.groupId}`);
-          }
-        } else if (type === "full-status") {
-          // Full status query response
-          isAvailable = available;
-        }
-      });
-
-      // Handle worker errors
-      worker.on("error", (error) => {
-        log.error(`Worker error for device ${deviceId}:`, error);
-        eventLogger.error(
-          EventCategory.PING,
-          "worker_error",
-          `Worker error for device ${ipAddress}: ${error.message}`,
-          {
-            deviceId,
-            deviceIp: ipAddress,
-            groupId: config?.logging?.groupId || null,
-            groupName: config?.logging?.groupName || null,
-            source: "pingWorker",
-            metadata: { error: error.message },
-          },
-        );
-      });
-
-      // Handle worker exit
-      worker.on("exit", (code) => {
-        log.debug(`Worker for device ${deviceId} exited with code ${code}`);
-        this.activeWorkers.delete(deviceId);
-      });
-
-      // Store worker info
-      this.activeWorkers.set(deviceId, {
-        worker,
-        isAvailable,
-        ipAddress,
-        lastStatusUpdate,
-      });
-
-      // Start pinging in the worker with configuration
-      worker.postMessage({
-        command: "start",
-        ipAddress,
-        intervalMs,
-        config,
-      });
-
-      log.info(
-        `Started pinging device ${deviceId} (${ipAddress}) every ${intervalMs}ms in worker thread`,
-      );
-    } catch (error) {
-      log.error(`Error starting ping for device ${deviceId}:`, error.message);
-      throw error;
-    }
+    // Delegate worker orchestration to pingWorkerManager
+    return pingWorkerManager.startPing(
+      deviceId,
+      ipAddress,
+      intervalMs,
+      mainWindow,
+      config,
+    );
   }
 
   /**
