@@ -26,7 +26,7 @@ class SessionLogger {
     return this.logsDir;
   }
 
-  startSession(groupId) {
+  startSession(groupId, groupName) {
     try {
       const logsDir = this._ensureLogsDir();
 
@@ -34,7 +34,10 @@ class SessionLogger {
       this.stopSession(groupId);
 
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const filename = `session_${groupId}_${timestamp}.db`;
+      const sanitizedGroupName = (groupName || groupId)
+        .toString()
+        .replace(/[^a-z0-9_\-.]/gi, "_");
+      const filename = `timeseries_${sanitizedGroupName}_${timestamp}.db`;
       const dbPath = path.join(logsDir, filename);
 
       const db = new Database(dbPath);
@@ -106,6 +109,58 @@ class SessionLogger {
         );
       }
       this.activeSessions.delete(groupId);
+    }
+  }
+
+  getAvailableSessions(groupName) {
+    try {
+      const logsDir = this._ensureLogsDir();
+      const files = fs.readdirSync(logsDir);
+      const sanitizedGroupName = (groupName || "")
+        .toString()
+        .replace(/[^a-z0-9_\-.]/gi, "_");
+      const prefix = `timeseries_${sanitizedGroupName}_`;
+
+      console.log("prefix: ", prefix);
+      return files
+        .filter((file) => file.startsWith(prefix) && file.endsWith(".db"))
+        .map((file) => {
+          const timestampStr = file.replace(prefix, "").replace(".db", "");
+          return {
+            filename: file,
+            timestamp: timestampStr,
+            // Convert back to readable date if needed, or let client handle it
+            displayDate: new Date(
+              timestampStr
+                .replace(/-/g, ":")
+                .replace(/:/, "-")
+                .replace(/:/, "-"),
+            ).toLocaleString(), // Heuristic cleanup
+          };
+        })
+        .sort((a, b) => b.filename.localeCompare(a.filename)); // Newest first
+    } catch (error) {
+      console.error(`[SessionLogger] Error listing sessions:`, error);
+      return [];
+    }
+  }
+
+  getSessionData(filename) {
+    try {
+      const logsDir = this._ensureLogsDir();
+      const dbPath = path.join(logsDir, filename);
+
+      if (!fs.existsSync(dbPath)) {
+        throw new Error("Session file not found");
+      }
+
+      const db = new Database(dbPath, { readonly: true });
+      const pings = db.prepare("SELECT * FROM pings ORDER BY id ASC").all();
+      db.close();
+      return pings;
+    } catch (error) {
+      console.error(`[SessionLogger] Error reading session data:`, error);
+      throw error;
     }
   }
 }

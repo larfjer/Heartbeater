@@ -35,6 +35,7 @@
     <link rel="stylesheet" href="styles/features/forms.css" />
     <link rel="stylesheet" href="styles/features/scanner.css" />
     <link rel="stylesheet" href="styles/features/connectivity.css" />
+    <link rel="stylesheet" href="styles/features/history.css" />
   </head>
   <body>
     <header class="app-bar">
@@ -46,6 +47,10 @@
       <div class="tab active" data-tab="group-connectivity">
         <span class="material-icons tab-icon">hub</span>
         Group Connectivity
+      </div>
+      <div class="tab" data-tab="history">
+        <span class="material-icons tab-icon">history</span>
+        History
       </div>
       <div class="tab" data-tab="device-scan">
         <span class="material-icons tab-icon">radar</span>
@@ -61,6 +66,11 @@
       <!-- Group Connectivity Tab -->
       <div id="group-connectivity" class="tab-content active">
         <div id="connectivity-container"></div>
+      </div>
+
+      <!-- History Tab -->
+      <div id="history" class="tab-content">
+        <div id="history-container"></div>
       </div>
 
       <!-- Device Scan Tab -->

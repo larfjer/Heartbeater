@@ -1,0 +1,22 @@
+/**
+ * History UI Styles
+ * Styling for the history tab and chart visualization
+ */
+
+#history-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: var(--spacing-xl);
+}
+
+.history-chart-container {
+  flex: 1;
+  display: flex;
+  position: relative;
+}
+
+#historyChart {
+  width: 100%;
+  height: 100%;
+}

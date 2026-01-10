@@ -5,6 +5,7 @@
 import { domElements } from "./domElements.js";
 import { renderGroups } from "./groupsUI.js";
 import { renderGroupConnectivity } from "./groupConnectivityUI.js";
+import { renderHistory } from "./historyUI.js";
 
 export function initializeTabs() {
   const { tabs, tabContents } = domElements;
@@ -25,6 +26,8 @@ export function initializeTabs() {
 
       if (tabName === "group-connectivity") {
         renderGroupConnectivity();
+      } else if (tabName === "history") {
+        renderHistory();
       } else if (tabName === "device-group") {
         renderGroups();
       }

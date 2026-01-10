@@ -63,8 +63,8 @@ const pingApi = {
     ipcRenderer.on("device:status-updated", (_event, data) => callback(data)),
 };
 const loggingApi = {
-  startSession: (groupId) =>
-    ipcRenderer.invoke("logging:start-session", groupId),
+  startSession: (groupId, groupName) =>
+    ipcRenderer.invoke("logging:start-session", groupId, groupName),
   stopSession: (groupId) => ipcRenderer.invoke("logging:stop-session", groupId),
 };
 contextBridge.exposeInMainWorld("api", {
@@ -103,5 +103,11 @@ contextBridge.exposeInMainWorld("api", {
   logging: {
     startSession: loggingApi.startSession,
     stopSession: loggingApi.stopSession,
+  },
+  history: {
+    getSessions: (groupName) =>
+      ipcRenderer.invoke("logging:get-sessions", groupName),
+    getSessionData: (filename) =>
+      ipcRenderer.invoke("logging:get-session-data", filename),
   },
 });

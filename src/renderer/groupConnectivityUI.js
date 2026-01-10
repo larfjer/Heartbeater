@@ -203,6 +203,9 @@ export async function renderGroupConnectivity() {
       const selectedGroupId = groupSelector.value;
       if (!selectedGroupId) return;
 
+      const selectedGroupName =
+        groupSelector.options[groupSelector.selectedIndex].text;
+
       const isRunning = pingState[selectedGroupId] || false;
 
       const devicesResult =
@@ -243,7 +246,10 @@ export async function renderGroupConnectivity() {
         const enableLogging = loggingEnabledInput.checked;
         if (enableLogging) {
           try {
-            await window.api.logging.startSession(selectedGroupId);
+            await window.api.logging.startSession(
+              selectedGroupId,
+              selectedGroupName,
+            );
           } catch (e) {
             console.error("Error starting logging session", e);
           }
