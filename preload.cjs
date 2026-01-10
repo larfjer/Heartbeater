@@ -62,7 +62,11 @@ const pingApi = {
   onStatusUpdated: (callback) =>
     ipcRenderer.on("device:status-updated", (_event, data) => callback(data)),
 };
-
+const loggingApi = {
+  startSession: (groupId) =>
+    ipcRenderer.invoke("logging:start-session", groupId),
+  stopSession: (groupId) => ipcRenderer.invoke("logging:stop-session", groupId),
+};
 contextBridge.exposeInMainWorld("api", {
   scanNetwork: scannerApi.scanNetwork,
   scanDeviceDetails: scannerApi.scanDeviceDetails,
@@ -95,5 +99,9 @@ contextBridge.exposeInMainWorld("api", {
     getStatusMetrics: pingApi.getStatusMetrics,
     onAvailabilityChanged: pingApi.onAvailabilityChanged,
     onStatusUpdated: pingApi.onStatusUpdated,
+  },
+  logging: {
+    startSession: loggingApi.startSession,
+    stopSession: loggingApi.stopSession,
   },
 });

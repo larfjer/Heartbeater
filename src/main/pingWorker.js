@@ -96,6 +96,23 @@ function determineConnectionStatus(responseTimeValue, previousStatus) {
 }
 
 /**
+ * Send log data to main thread
+ */
+function sendLogData(ipAddress, result, cv) {
+  const now = new Date();
+  parentPort.postMessage({
+    type: "log_attempt",
+    data: {
+      timestamp_utc: now.toISOString(),
+      timestamp_local: now.toString(),
+      target: ipAddress,
+      latency_ms: result.success ? result.responseTime : 0,
+      jitter_cv: cv,
+    },
+  });
+}
+
+/**
  * Send status signal to main thread
  */
 function sendStatusSignal(status) {
@@ -117,9 +134,10 @@ async function startPingLoop(ipAddress, intervalMs) {
   totalPings++;
   lastPingTime = Date.now();
   coefficientOfVariation = calculateCoefficientOfVariation(result.responseTime);
+  sendLogData(ipAddress, result, coefficientOfVariation);
 
   if (result.success) {
-    console.log(`ping ok ${ipAddress} ${result.responseTime}ms`);
+    // console.log(`ping ok ${ipAddress} ${result.responseTime}ms`);
     consecutiveSuccesses++;
     consecutiveFailures = 0;
     if (!isAvailable) {
@@ -149,7 +167,7 @@ async function startPingLoop(ipAddress, intervalMs) {
       });
     }
   } else {
-    console.log(`ping failed ${ipAddress}`);
+    // console.log(`ping failed ${ipAddress}`);
     consecutiveFailures++;
     consecutiveSuccesses = 0;
     totalFailures++;
@@ -185,9 +203,10 @@ async function startPingLoop(ipAddress, intervalMs) {
     coefficientOfVariation = calculateCoefficientOfVariation(
       result.responseTime,
     );
+    sendLogData(ipAddress, result, coefficientOfVariation);
 
     if (result.success) {
-      console.log(`ping ok ${ipAddress} ${result.responseTime}ms`);
+      // console.log(`ping ok ${ipAddress} ${result.responseTime}ms`);
       consecutiveSuccesses++;
       consecutiveFailures = 0;
 
@@ -220,7 +239,7 @@ async function startPingLoop(ipAddress, intervalMs) {
         });
       }
     } else {
-      console.log(`ping failed ${ipAddress}`);
+      // console.log(`ping failed ${ipAddress}`);
       consecutiveFailures++;
       consecutiveSuccesses = 0;
       totalFailures++;

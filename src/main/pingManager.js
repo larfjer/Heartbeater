@@ -8,6 +8,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { ipcMain } from "electron";
 import { log } from "./logger.js";
+import sessionLogger from "./sessionLogger.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -63,9 +64,9 @@ class PingManager {
             timestamp: message.timestamp,
           };
 
-          log.debug(
-            `Device ${deviceId} (${statusData.ipAddress}) status: ${status}`,
-          );
+          // log.debug(
+          //   `Device ${deviceId} (${statusData.ipAddress}) status: ${status}`,
+          // );
 
           // Notify renderer about detailed status update
           if (mainWindow && !mainWindow.isDestroyed()) {
@@ -73,6 +74,14 @@ class PingManager {
               deviceId,
               ...lastStatusUpdate,
             });
+          }
+        } else if (type === "log_attempt") {
+          // Check config from closure
+          if (config?.logging?.enabled && config?.logging?.groupId) {
+            // log.debug(`Received log attempt for ${config.logging.groupId}`);
+            sessionLogger.logPing(config.logging.groupId, message.data);
+          } else {
+            // log.debug(`Log attempt skipped. Enabled: ${config?.logging?.enabled}, GroupId: ${config?.logging?.groupId}`);
           }
         } else if (type === "full-status") {
           // Full status query response

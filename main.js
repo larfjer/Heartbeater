@@ -20,6 +20,7 @@ import { registerScannerHandlers } from "./src/main/ipcScannerHandlers.js";
 import { registerDeviceStorageHandlers } from "./src/main/ipcDeviceHandlers.js";
 import { registerGroupStorageHandlers } from "./src/main/ipcGroupHandlers.js";
 import { registerGroupDeviceHandlers } from "./src/main/ipcGroupDeviceHandlers.js";
+import setupLoggingHandlers from "./src/main/ipcLoggingHandlers.js";
 import { registerPingHandlers } from "./src/main/pingManager.js";
 
 // Initialize storage
@@ -33,6 +34,7 @@ function registerIpcHandlers() {
   registerDeviceStorageHandlers(storage);
   registerGroupStorageHandlers(storage);
   registerGroupDeviceHandlers(storage);
+  setupLoggingHandlers();
   registerPingHandlers(mainWindow);
 }
 

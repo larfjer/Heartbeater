@@ -54,6 +54,13 @@ export async function renderGroupConnectivity() {
             <input type="number" id="responseTimeThresholdInput" class="form-input-auto" 
                    placeholder="100" min="1" max="1000" disabled />
           </div>
+           <div class="connectivity-control-group">
+            <label class="form-label">Logging:</label>
+            <div class="logging-control">
+              <input type="checkbox" id="loggingEnabledInput" disabled />
+              <span class="logging-label">Enable</span>
+            </div>
+          </div>
           <div class="connectivity-control-buttons">
             <button id="togglePingBtn" class="md-button" disabled>
               <span class="material-icons">play_arrow</span>
@@ -77,6 +84,7 @@ export async function renderGroupConnectivity() {
       "responseTimeThresholdInput",
     );
     const togglePingBtn = document.getElementById("togglePingBtn");
+    const loggingEnabledInput = document.getElementById("loggingEnabledInput");
     const devicesTableContainer = document.getElementById(
       "devicesTableContainer",
     );
@@ -117,6 +125,7 @@ export async function renderGroupConnectivity() {
       pingIntervalInput.disabled = false;
       cvThresholdInput.disabled = false;
       responseTimeThresholdInput.disabled = false;
+      loggingEnabledInput.disabled = false;
 
       // Load saved interval and thresholds for this group or use defaults
       const savedInterval = localStorage.getItem(
@@ -128,10 +137,15 @@ export async function renderGroupConnectivity() {
       const savedResponseTimeThreshold = localStorage.getItem(
         `responseTimeThreshold_${selectedGroupId}`,
       );
+      const savedLogging = localStorage.getItem(
+        `loggingEnabled_${selectedGroupId}`,
+      );
 
       pingIntervalInput.value = savedInterval || "5000";
       cvThresholdInput.value = savedCvThreshold || "0.3";
       responseTimeThresholdInput.value = savedResponseTimeThreshold || "100";
+      loggingEnabledInput.checked =
+        savedLogging === "true" || savedLogging === null;
 
       // Update button state based on current ping state
       const isRunning = pingState[selectedGroupId] || false;
@@ -173,6 +187,17 @@ export async function renderGroupConnectivity() {
       }
     });
 
+    // Handle logging toggle change
+    loggingEnabledInput.addEventListener("change", (e) => {
+      const selectedGroupId = groupSelector.value;
+      if (selectedGroupId) {
+        localStorage.setItem(
+          `loggingEnabled_${selectedGroupId}`,
+          e.target.checked,
+        );
+      }
+    });
+
     // Handle toggle ping button
     togglePingBtn.addEventListener("click", async () => {
       const selectedGroupId = groupSelector.value;
@@ -185,6 +210,13 @@ export async function renderGroupConnectivity() {
       const devices = devicesResult.success ? devicesResult.devices : [];
 
       if (isRunning) {
+        // Stop logging session
+        try {
+          await window.api.logging.stopSession(selectedGroupId);
+        } catch (e) {
+          console.error("Error stopping logging session", e);
+        }
+
         // Stop ping for all devices in group
         for (const device of devices) {
           try {
@@ -208,9 +240,22 @@ export async function renderGroupConnectivity() {
         const responseTimeThreshold =
           parseInt(responseTimeThresholdInput.value, 10) || 100;
 
+        const enableLogging = loggingEnabledInput.checked;
+        if (enableLogging) {
+          try {
+            await window.api.logging.startSession(selectedGroupId);
+          } catch (e) {
+            console.error("Error starting logging session", e);
+          }
+        }
+
         const config = {
           cvThreshold,
           responseTimeThreshold,
+          logging: {
+            enabled: enableLogging,
+            groupId: selectedGroupId,
+          },
         };
 
         for (const device of devices) {
