@@ -14,6 +14,8 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 import { app } from "electron";
+import { nowIso } from "./timeUtils.js";
+import { formatMessage } from "./loggingUtils.js";
 
 /**
  * Event severity levels
@@ -107,7 +109,9 @@ class EventLogger {
 
       console.log(`[EventLogger] Initialized at ${this.dbPath}`);
     } catch (error) {
-      console.error(`[EventLogger] Failed to initialize:`, error);
+      console.error(
+        `[EventLogger] Failed to initialize: ${formatMessage(error)}`,
+      );
       throw error;
     }
   }
@@ -135,7 +139,7 @@ class EventLogger {
     }
 
     try {
-      const timestamp = new Date().toISOString();
+      const timestamp = nowIso();
 
       const result = this.insertStmt.run({
         timestamp,
@@ -154,7 +158,9 @@ class EventLogger {
 
       return result.lastInsertRowid;
     } catch (error) {
-      console.error("[EventLogger] Failed to log event:", error);
+      console.error(
+        "[EventLogger] Failed to log event: " + formatMessage(error),
+      );
       return null;
     }
   }
@@ -293,7 +299,9 @@ class EventLogger {
         metadata: row.metadata ? JSON.parse(row.metadata) : null,
       }));
     } catch (error) {
-      console.error("[EventLogger] Failed to query events:", error);
+      console.error(
+        "[EventLogger] Failed to query events: " + formatMessage(error),
+      );
       return [];
     }
   }
@@ -335,7 +343,9 @@ class EventLogger {
         metadata: row.metadata ? JSON.parse(row.metadata) : null,
       }));
     } catch (error) {
-      console.error("[EventLogger] Failed to query by group:", error);
+      console.error(
+        "[EventLogger] Failed to query by group: " + formatMessage(error),
+      );
       return [];
     }
   }
@@ -375,7 +385,9 @@ class EventLogger {
         metadata: row.metadata ? JSON.parse(row.metadata) : null,
       }));
     } catch (error) {
-      console.error("[EventLogger] Failed to query by device:", error);
+      console.error(
+        "[EventLogger] Failed to query by device: " + formatMessage(error),
+      );
       return [];
     }
   }
@@ -423,7 +435,9 @@ class EventLogger {
         metadata: row.metadata ? JSON.parse(row.metadata) : null,
       }));
     } catch (error) {
-      console.error("[EventLogger] Failed to get recent events:", error);
+      console.error(
+        "[EventLogger] Failed to get recent events: " + formatMessage(error),
+      );
       return [];
     }
   }
@@ -483,7 +497,9 @@ class EventLogger {
         topEventTypes: typeStats,
       };
     } catch (error) {
-      console.error("[EventLogger] Failed to get statistics:", error);
+      console.error(
+        "[EventLogger] Failed to get statistics: " + formatMessage(error),
+      );
       return null;
     }
   }
@@ -504,7 +520,9 @@ class EventLogger {
 
       return result;
     } catch (error) {
-      console.error("[EventLogger] Failed to get time range:", error);
+      console.error(
+        "[EventLogger] Failed to get time range: " + formatMessage(error),
+      );
       return null;
     }
   }
@@ -527,7 +545,9 @@ class EventLogger {
       );
       return result.changes;
     } catch (error) {
-      console.error("[EventLogger] Failed to prune events:", error);
+      console.error(
+        "[EventLogger] Failed to prune events: " + formatMessage(error),
+      );
       return 0;
     }
   }
@@ -541,7 +561,9 @@ class EventLogger {
         this.db.close();
         console.log("[EventLogger] Database closed");
       } catch (error) {
-        console.error("[EventLogger] Error closing database:", error);
+        console.error(
+          "[EventLogger] Error closing database: " + formatMessage(error),
+        );
       }
       this.db = null;
       this.insertStmt = null;
