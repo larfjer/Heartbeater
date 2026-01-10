@@ -37,7 +37,7 @@ describe("EventLogger", () => {
   });
 
   test("initialize prepares database and insert statement", () => {
-    eventLogger.initialize();
+    eventLogger.initialize(require("electron").app);
     expect(Database).toHaveBeenCalled();
     expect(mockDb.exec).toHaveBeenCalled();
   });
@@ -46,7 +46,7 @@ describe("EventLogger", () => {
     const mockInsert = { run: jest.fn(() => ({ lastInsertRowid: 1 })) };
     mockDb.prepare.mockReturnValueOnce(mockInsert);
 
-    eventLogger.initialize();
+    eventLogger.initialize(require("electron").app);
     const id = eventLogger.log({
       level: "info",
       category: "system",

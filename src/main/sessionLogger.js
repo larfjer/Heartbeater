@@ -1,8 +1,10 @@
 import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
-import { app } from "electron";
 import { nowIso, parseIso } from "./timeUtils.js";
+
+// Lazy electron app reference; set via initialize(app) to avoid import-time side-effects
+let _electronApp = null;
 
 class SessionLogger {
   constructor() {
@@ -10,21 +12,33 @@ class SessionLogger {
     this.logsDir = null;
   }
 
+  initialize(appInstance = null) {
+    if (appInstance) {
+      _electronApp = appInstance;
+      this.logsDir = path.join(_electronApp.getPath("userData"), "logs");
+      if (!fs.existsSync(this.logsDir)) {
+        try {
+          fs.mkdirSync(this.logsDir, { recursive: true });
+        } catch (error) {
+          console.error(
+            "[SessionLogger] Failed to create logs directory:",
+            error,
+          );
+        }
+      }
+      console.log(
+        "[SessionLogger] Initialized logs directory: " + this.logsDir,
+      );
+    }
+  }
+
   _ensureLogsDir() {
     if (this.logsDir) return this.logsDir;
 
-    this.logsDir = path.join(app.getPath("userData"), "logs");
-    console.log(`[SessionLogger] Initializing logs directory: ${this.logsDir}`);
-
-    if (!fs.existsSync(this.logsDir)) {
-      try {
-        fs.mkdirSync(this.logsDir, { recursive: true });
-        console.log(`[SessionLogger] Created logs directory`);
-      } catch (err) {
-        console.error(`[SessionLogger] Failed to create logs directory:`, err);
-      }
-    }
-    return this.logsDir;
+    // Do not attempt to require electron at import time; require initialize(app)
+    throw new Error(
+      "SessionLogger not initialized: call initialize(app) before using",
+    );
   }
 
   startSession(groupId, groupName) {

@@ -9,6 +9,18 @@ import { pingWorkerManager } from "./pingWorkerManager.js";
 class PingManager {
   constructor() {
     this.activeWorkers = new Map(); // Maps deviceId -> { worker, isAvailable }
+    this._initialized = false;
+    this._app = null;
+  }
+
+  /**
+   * Initialize PingManager with optional app or options.
+   * This is a no-op for backward compatibility but provides an explicit
+   * initialization entrypoint for tests and runtime.
+   */
+  initialize(options = {}) {
+    this._initialized = true;
+    if (options.app) this._app = options.app;
   }
 
   /**

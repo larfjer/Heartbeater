@@ -24,6 +24,8 @@ import setupLoggingHandlers from "./src/main/ipcLoggingHandlers.js";
 import setupEventLogHandlers from "./src/main/ipcEventLogHandlers.js";
 import initializePingHandlers from "./src/main/ipcPingHandlers.js";
 import eventLogger from "./src/main/eventLogger.js";
+import sessionLogger from "./src/main/sessionLogger.js";
+import { pingManager } from "./src/main/pingManager.js";
 
 // Initialize storage
 let storage;
@@ -44,10 +46,13 @@ function registerIpcHandlers() {
 // Initialize app when ready
 app.whenReady().then(() => {
   log.info("App is ready");
-  storage = new GroupStorageService();
+  storage = new GroupStorageService(app);
 
-  // Initialize the global event logger
-  eventLogger.initialize();
+  // Initialize modules that require app paths / resources
+  sessionLogger.initialize(app);
+  eventLogger.initialize(app);
+  pingManager.initialize({ app });
+
   eventLogger.info("system", "app_started", "Application started");
 
   mainWindow = initializeApp(storage);

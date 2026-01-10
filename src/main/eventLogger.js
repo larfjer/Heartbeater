@@ -13,9 +13,11 @@
 import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
-import { app } from "electron";
 import { nowIso } from "./timeUtils.js";
 import { formatMessage } from "./loggingUtils.js";
+
+// Lazy reference to electron app; set by initialize(app) to avoid import-time side-effects
+let _electronApp = null;
 
 /**
  * Event severity levels
@@ -52,11 +54,25 @@ class EventLogger {
    * Initialize the event logger database
    * Should be called after app is ready
    */
-  initialize() {
+  /**
+   * Initialize the EventLogger. Pass the Electron `app` object to avoid importing
+   * electron at module load time. If not provided, the function will attempt to
+   * lazily require electron.app.
+   */
+  initialize(appInstance = null) {
     if (this.db) return; // Already initialized
 
+    if (appInstance) {
+      _electronApp = appInstance;
+    }
+
+    if (!_electronApp) {
+      throw new Error(
+        "EventLogger.initialize requires an Electron app instance. Call initialize(app) before using.",
+      );
+    }
     try {
-      this.logsDir = path.join(app.getPath("userData"), "logs");
+      this.logsDir = path.join(_electronApp.getPath("userData"), "logs");
 
       if (!fs.existsSync(this.logsDir)) {
         fs.mkdirSync(this.logsDir, { recursive: true });
@@ -110,7 +126,7 @@ class EventLogger {
       console.log(`[EventLogger] Initialized at ${this.dbPath}`);
     } catch (error) {
       console.error(
-        `[EventLogger] Failed to initialize: ${formatMessage(error)}`,
+        "[EventLogger] Failed to initialize: " + formatMessage(error),
       );
       throw error;
     }

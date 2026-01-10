@@ -29,6 +29,9 @@ describe("SessionLogger", () => {
     // Ensure logs dir behavior is predictable
     jest.spyOn(fs, "existsSync").mockImplementation(() => true);
     jest.spyOn(fs, "mkdirSync").mockImplementation(() => {});
+
+    // Initialize sessionLogger with mocked electron app
+    sessionLogger.initialize(require("electron").app);
   });
 
   afterEach(() => {

@@ -1,11 +1,32 @@
 import fs from "fs";
 import path from "path";
-import { app } from "electron";
+
+// Note: Do not import `app` at module load time. GroupStorageService requires
+// an Electron `app` instance to be passed to the constructor or to `initialize()`
+// to avoid import-time side-effects during testing.
 import { nowIso } from "./src/main/timeUtils.js";
 
 class GroupStorageService {
-  constructor() {
-    this.storageDir = path.join(app.getPath("userData"), "storage");
+  constructor(appInstance = null) {
+    this._app = appInstance;
+    this.storageDir = null;
+    this.storageFile = null;
+    if (this._app) {
+      this.storageDir = path.join(this._app.getPath("userData"), "storage");
+      this.storageFile = path.join(this.storageDir, "groups.json");
+      this.initializeStorage();
+    }
+  }
+
+  initialize(appInstance) {
+    if (this._app) return; // already initialized
+    if (!appInstance) {
+      throw new Error(
+        "GroupStorageService.initialize requires an Electron app instance",
+      );
+    }
+    this._app = appInstance;
+    this.storageDir = path.join(this._app.getPath("userData"), "storage");
     this.storageFile = path.join(this.storageDir, "groups.json");
     this.initializeStorage();
   }
