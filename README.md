@@ -24,6 +24,24 @@ Heartbeater is a desktop application built with [Electron](https://www.electronj
 - Clean, intuitive UI with organized tabs for devices and groups
 - Cross-platform support (macOS, Windows, Linux via Electron)
 
+## Refactor & Migration Notes
+
+Recent refactors split responsibilities across small modules to improve testability and avoid import-time side-effects. Key changes you should be aware of:
+
+- Time & logging utilities: `src/main/timeUtils.js` and `src/main/loggingUtils.js` centralize ISO timestamps and message formatting.
+- Persistent event logging: `src/main/eventLogger.js` provides an `initialize(app)` API and query methods (ISO8601 timestamps are used throughout).
+- Worker orchestration: `src/main/pingWorkerManager.js` manages `Worker` lifecycles; use `pingManager` facade in application code.
+- IPC handlers: register via initializer functions (example: `initializePingHandlers(mainWindow)`) instead of registering at import time.
+- Modules that touch the filesystem or native resources now expose `initialize(app)` to be called from `main.js` after `app.whenReady()`.
+
+Migration steps
+
+1. Replace ad-hoc Date usage with `nowIso()` for ISO timestamps.
+2. Call `initialize(app)` for `eventLogger`, `sessionLogger`, and `storage` during app bootstrap.
+3. Run `npm test` — tests mock native modules and expect explicit initialization in `main.js`.
+
+Quick rollback checklist: revert the last commit or restore `main.old.js` / `renderer.old.js` backups; re-enable previous initialization behaviour and re-run tests.
+
 ## Technology Stack
 
 - **Framework**: Electron 33.4.11

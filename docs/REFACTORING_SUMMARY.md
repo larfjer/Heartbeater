@@ -214,11 +214,65 @@ These can be referenced for comparison or reverted if issues arise.
 
 ## Recent Changes (2026-01-10)
 
-- Added centralized time utilities: `src/main/timeUtils.js` (`nowIso`, `toIso8601`, `formatLocal`, `parseIso`).
-- Added logging helpers: `src/main/loggingUtils.js` (`withLogContext`, `formatMessage`).
-- Refactored `src/main/logger.js` to use `nowIso()` and `formatMessage()` for consistent timestamps and message formatting.
-- Replaced ad-hoc `new Date().toISOString()` usages in `storage.js` with `nowIso()`.
-- Updated `src/main/eventLogger.js` to use `nowIso()` and improved error formatting via `formatMessage()`.
-- Ran lint autofix and resolved remaining warnings where safe; a few unused-variable warnings remain in `src/main/pingManager.js` and `src/main/pingWorkerManager.js` to be handled during targeted refactors.
+- Centralized time utilities: `src/main/timeUtils.js` (`nowIso`, `toIso8601`, `formatLocal`, `parseIso`).
+- Centralized logging helpers: `src/main/loggingUtils.js` (`withLogContext`, `formatMessage`) and `src/main/logger.js` updated to use them.
+- Introduced a persistent `eventLogger` module: `src/main/eventLogger.js` (ISO8601 timestamps, query APIs, explicit `initialize(app)` to avoid import-time side-effects).
+- Split ping orchestration: `src/main/pingWorkerManager.js` (worker orchestration) and `src/main/pingWorker.js` (worker code). `src/main/pingManager.js` is a lightweight facade.
+- Moved IPC registration into dedicated modules (`src/main/ipcPingHandlers.js`, `ipcScannerHandlers.js`, etc.) and exposed them via explicit initializer functions.
+- `sessionLogger` and `storage` now require explicit `initialize(app)` to avoid opening files at import time and to make testing deterministic.
+- Tests: Jest + `babel-jest` configured for ESM; added unit tests for time/logging utilities and worker/IPC modules. Native resources (workers, better-sqlite3) are mocked at test-top-level.
 
-These changes centralize time and logging behavior to improve consistency and make future internationalization or formatting changes straightforward.
+These changes centralize time and logging behavior, remove import-time side effects, and improve modular testability.
+
+## New Module Boundaries & Public APIs
+
+- `src/main/timeUtils.js`
+  - Exports: `nowIso()`, `toIso8601()`, `formatLocal()`, `parseIso()`
+
+- `src/main/loggingUtils.js`
+  - Exports: `withLogContext(context) -> loggerFn`, `formatMessage(message, meta)`
+
+- `src/main/logger.js`
+  - Exports: `log` object with `info()`, `error()`, `debug()` — uses `nowIso()` and `formatMessage()` internally
+
+- `src/main/eventLogger.js`
+  - Exports: default `eventLogger` singleton and named `EventLogger` class, plus enums `EventCategory`, `EventLevel`
+  - API highlights: `initialize(app)`, `log(event) -> id`, `info()`, `warning()`, `error()`, `queryByTimeInterval(startIso, endIso)`, `pruneEvents()`
+
+- `src/main/sessionLogger.js`
+  - Exports: default `sessionLogger` with `initialize(app)`, `startSession(groupId, groupName)`, `logPing(groupId, pingData)`, `stopSession()`
+
+- `src/main/pingWorkerManager.js`
+  - Exports: `pingWorkerManager` and `PingWorkerManager` class
+  - Key methods: `startPing(deviceId, ip, intervalMs, mainWindow, config)`, `stopPing(deviceId)`, `stopAllPings()`, `getAvailabilityStatus()`, `getDetailedStatus()`
+
+- `src/main/ipcPingHandlers.js`
+  - Exports: `initializePingHandlers(mainWindow)` and default export
+  - Registers `ipcMain.handle(...)` for ping control and queries; uses `pingManager` and `eventLogger` internally
+
+## Migration Steps (how to adopt)
+
+1. Replace any direct `new Date().toISOString()` usages with `nowIso()` from `src/main/timeUtils.js` when an ISO timestamp is intended.
+2. When importing `eventLogger`, `sessionLogger`, or `storage` in `main.js`, call their `initialize(app)` method after `app` is available (e.g. in `app.whenReady()` or equivalent) — do not rely on import-time initialization.
+3. If you add IPC handlers, follow the pattern in `src/main/ipcPingHandlers.js`: provide an `initializeXHandlers(mainWindow)` function and call it from the bootstrap after window creation.
+4. For worker-based functionality, use `pingWorkerManager`'s APIs rather than spawning `Worker` directly from other modules; this centralizes lifecycle and error handling.
+5. Update tests to mock `worker_threads` and `better-sqlite3` at the top of the test file before importing modules that use those natives.
+
+## Rollback Checklist (quick revert steps)
+
+If the refactor causes regressions, follow this rollback checklist:
+
+1. Revert to the previous commit (or use the saved `main.old.js` / `renderer.old.js` backups if present).
+   - Git: `git checkout -- <file>` or `git reset --hard <commit>`
+2. Restore import-time behavior temporarily by removing calls to `initialize(app)` and replacing `initialize` calls with the previous instantiation pattern (search for `initialize(` in `main.js`).
+3. Re-enable any worker spawning that was centralized (revert to previous worker creation locations).
+4. Re-run the test suite: `npm test` and fix failing tests incrementally.
+5. If database schema or event table changes were introduced, restore the backed-up DB files from `docs/` if available or from the original install location.
+
+Keep this checklist with the release notes for a quick emergency rollback.
+
+## Notes for Reviewers
+
+- Look for explicit `initialize(app)` calls during app bootstrap; these are intentional to avoid import-time side-effects.
+- Verify new unit tests mock native modules at top-level.
+- Prefer the new `eventLogger` APIs for persistent events and the `sessionLogger` for timeseries session data.
