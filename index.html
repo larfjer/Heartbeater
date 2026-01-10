@@ -39,28 +39,29 @@
   </head>
   <body>
     <header class="app-bar">
-      <span class="material-icons">monitor_heart</span>
-      <h1>Heartbeater</h1>
+      <div class="app-bar-brand">
+        <span class="material-icons">monitor_heart</span>
+        <h1>Heartbeater</h1>
+      </div>
+      <nav class="tabs">
+        <div class="tab active" data-tab="group-connectivity">
+          <span class="material-icons tab-icon">hub</span>
+          Group Connectivity
+        </div>
+        <div class="tab" data-tab="history">
+          <span class="material-icons tab-icon">history</span>
+          History
+        </div>
+        <div class="tab" data-tab="device-scan">
+          <span class="material-icons tab-icon">radar</span>
+          Device Scan
+        </div>
+        <div class="tab" data-tab="device-group">
+          <span class="material-icons tab-icon">group</span>
+          Device Groups
+        </div>
+      </nav>
     </header>
-
-    <nav class="tabs">
-      <div class="tab active" data-tab="group-connectivity">
-        <span class="material-icons tab-icon">hub</span>
-        Group Connectivity
-      </div>
-      <div class="tab" data-tab="history">
-        <span class="material-icons tab-icon">history</span>
-        History
-      </div>
-      <div class="tab" data-tab="device-scan">
-        <span class="material-icons tab-icon">radar</span>
-        Device Scan
-      </div>
-      <div class="tab" data-tab="device-group">
-        <span class="material-icons tab-icon">group</span>
-        Device Groups
-      </div>
-    </nav>
 
     <main class="container">
       <!-- Group Connectivity Tab -->

@@ -5,11 +5,17 @@
 
 .app-bar {
   background-color: var(--md-sys-color-surface-container);
-  padding: var(--spacing-lg) var(--spacing-xl);
+  display: flex;
+  align-items: stretch;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.app-bar-brand {
   display: flex;
   align-items: center;
   gap: var(--spacing-lg);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  flex-shrink: 0;
 }
 
 .app-bar .material-icons {
@@ -30,7 +36,8 @@
   padding: var(--spacing-xl);
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 200px);
+  height: calc(100vh - 88px);
+  overflow: hidden;
 }
 
 .card {

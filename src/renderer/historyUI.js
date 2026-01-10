@@ -1,7 +1,8 @@
 import "../../node_modules/chart.js/dist/chart.umd.js";
 const Chart = window.Chart;
 
-let chartInstance = null;
+let latencyChartInstance = null;
+let jitterChartInstance = null;
 
 export async function renderHistory() {
   const container = document.getElementById("history-container");
@@ -29,19 +30,38 @@ export async function renderHistory() {
                     </button>
                 </div>
             </div>
+            <div id="historyPillsContainer" class="history-pills-section hidden">
+                <div class="legend-section">
+                    <span class="legend-section-label">Charts:</span>
+                    <div id="chartTogglePills" class="legend-pills"></div>
+                </div>
+                <div class="legend-section">
+                    <span class="legend-section-label">Devices:</span>
+                    <div id="historyLegendPills" class="legend-pills"></div>
+                </div>
+            </div>
         </div>
-        <div class="card history-legend-container">
-            <div id="historyLegendPills" class="legend-pills"></div>
+        <div id="placeholderContainer" class="card history-placeholder">
+            <div class="placeholder-content">
+                <span class="material-icons placeholder-icon">folder_open</span>
+                <p class="placeholder-text">Select a session and click "Load Chart" to view the data</p>
+            </div>
         </div>
-        <div class="card history-chart-container">
-            <canvas id="historyChart"></canvas>
+        <div id="latencyChartContainer" class="card history-chart-container hidden">
+            <h3 class="chart-title">Latency (ms)</h3>
+            <canvas id="latencyChart"></canvas>
+        </div>
+        <div id="jitterChartContainer" class="card history-chart-container hidden">
+            <h3 class="chart-title">Jitter (CV)</h3>
+            <canvas id="jitterChart"></canvas>
         </div>
     `;
 
   const groupSelector = document.getElementById("historyGroupSelector");
   const sessionSelector = document.getElementById("historySessionSelector");
   const loadBtn = document.getElementById("loadHistoryBtn");
-  const canvas = document.getElementById("historyChart");
+  const latencyCanvas = document.getElementById("latencyChart");
+  const jitterCanvas = document.getElementById("jitterChart");
 
   // Populate Groups
   try {
@@ -105,7 +125,18 @@ export async function renderHistory() {
       console.log("Session data result:", result);
       if (result.success) {
         console.log("Raw data:", result.data);
-        await renderChart(canvas, result.data);
+        // Show pills and charts, hide placeholder
+        document
+          .getElementById("historyPillsContainer")
+          .classList.remove("hidden");
+        document.getElementById("placeholderContainer").classList.add("hidden");
+        document
+          .getElementById("latencyChartContainer")
+          .classList.remove("hidden");
+        document
+          .getElementById("jitterChartContainer")
+          .classList.remove("hidden");
+        await renderCharts(latencyCanvas, jitterCanvas, result.data);
       } else {
         console.error("Failed to load session data", result.error);
       }
@@ -160,8 +191,8 @@ function formatSessionLabel(timestamp, durationSeconds) {
   return `${dateStr} - ${durationStr}`;
 }
 
-async function renderChart(canvas, data) {
-  // Data: { timestamp_utc, target, latency_ms, status, ... }
+async function renderCharts(latencyCanvas, jitterCanvas, data) {
+  // Data: { timestamp_utc, target, latency_ms, status, jitter_cv, ... }
 
   // Build a mapping from IP address to friendly name
   const ipToName = {};
@@ -196,7 +227,6 @@ async function renderChart(canvas, data) {
   });
 
   console.log("Devices found:", Object.keys(deviceTargets));
-  console.log("Full deviceTargets structure:", deviceTargets);
 
   // 2. For each device, sort by timestamp to establish chronological order
   Object.keys(deviceTargets).forEach((target) => {
@@ -223,29 +253,26 @@ async function renderChart(canvas, data) {
     new Date(ts).toLocaleTimeString(),
   );
 
-  // 4. Create Datasets
-  // For each device, map its data points to the sorted timestamps
-  const datasets = Object.keys(deviceTargets).map((target, index) => {
+  const colors = [
+    "rgb(255, 99, 132)",
+    "rgb(54, 162, 235)",
+    "rgb(255, 205, 86)",
+    "rgb(75, 192, 192)",
+    "rgb(153, 102, 255)",
+    "rgb(255, 159, 64)",
+  ];
+
+  // 4. Create Latency Datasets
+  const latencyDatasets = Object.keys(deviceTargets).map((target, index) => {
     const deviceData = sortedTimestamps.map((ts) => {
-      // Find the data point for this device at this exact timestamp
       const point = deviceTargets[target].find(
         (row) => row.timestamp_utc === ts,
       );
       if (point) {
         return point.latency_ms;
       }
-      // Return null if device has no data at this timestamp
       return null;
     });
-
-    const colors = [
-      "rgb(255, 99, 132)",
-      "rgb(54, 162, 235)",
-      "rgb(255, 205, 86)",
-      "rgb(75, 192, 192)",
-      "rgb(153, 102, 255)",
-      "rgb(255, 159, 64)",
-    ];
 
     return {
       label: getDisplayName(target),
@@ -253,19 +280,46 @@ async function renderChart(canvas, data) {
       borderColor: colors[index % colors.length],
       backgroundColor: colors[index % colors.length],
       tension: 0.1,
-      spanGaps: false, // Don't draw lines over failures
+      spanGaps: false,
     };
   });
 
-  if (chartInstance) {
-    chartInstance.destroy();
+  // 5. Create Jitter Datasets
+  const jitterDatasets = Object.keys(deviceTargets).map((target, index) => {
+    const deviceData = sortedTimestamps.map((ts) => {
+      const point = deviceTargets[target].find(
+        (row) => row.timestamp_utc === ts,
+      );
+      if (point && point.jitter_cv !== null && point.jitter_cv !== undefined) {
+        return point.jitter_cv;
+      }
+      return null;
+    });
+
+    return {
+      label: getDisplayName(target),
+      data: deviceData,
+      borderColor: colors[index % colors.length],
+      backgroundColor: colors[index % colors.length],
+      tension: 0.1,
+      spanGaps: false,
+    };
+  });
+
+  // Destroy existing charts
+  if (latencyChartInstance) {
+    latencyChartInstance.destroy();
+  }
+  if (jitterChartInstance) {
+    jitterChartInstance.destroy();
   }
 
-  chartInstance = new Chart(canvas, {
+  // Create Latency Chart
+  latencyChartInstance = new Chart(latencyCanvas, {
     type: "line",
     data: {
       labels: shortLabels,
-      datasets: datasets,
+      datasets: latencyDatasets,
     },
     options: {
       responsive: true,
@@ -278,10 +332,36 @@ async function renderChart(canvas, data) {
       scales: {
         y: {
           beginAtZero: true,
-          title: {
-            display: true,
-            text: "Latency (ms)",
-          },
+        },
+        x: {
+          display: false,
+        },
+      },
+      interaction: {
+        mode: "index",
+        intersect: false,
+      },
+    },
+  });
+
+  // Create Jitter Chart
+  jitterChartInstance = new Chart(jitterCanvas, {
+    type: "line",
+    data: {
+      labels: shortLabels,
+      datasets: jitterDatasets,
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
         },
         x: {
           title: {
@@ -297,15 +377,16 @@ async function renderChart(canvas, data) {
     },
   });
 
-  // Render custom legend pills
-  renderLegendPills(chartInstance);
+  // Render custom legend pills that control both charts
+  renderLegendPills(latencyChartInstance, jitterChartInstance);
+  renderChartTogglePills();
 }
 
-function renderLegendPills(chart) {
+function renderLegendPills(latencyChart, jitterChart) {
   const container = document.getElementById("historyLegendPills");
   container.innerHTML = "";
 
-  chart.data.datasets.forEach((dataset, index) => {
+  latencyChart.data.datasets.forEach((dataset, index) => {
     const pill = document.createElement("button");
     pill.className = "legend-pill active";
     pill.dataset.index = index;
@@ -322,10 +403,52 @@ function renderLegendPills(chart) {
     pill.appendChild(label);
 
     pill.addEventListener("click", () => {
-      const isVisible = chart.isDatasetVisible(index);
-      chart.setDatasetVisibility(index, !isVisible);
+      const isVisible = latencyChart.isDatasetVisible(index);
+      // Toggle visibility on both charts
+      latencyChart.setDatasetVisibility(index, !isVisible);
+      jitterChart.setDatasetVisibility(index, !isVisible);
       pill.classList.toggle("active", !isVisible);
-      chart.update();
+      latencyChart.update();
+      jitterChart.update();
+    });
+
+    container.appendChild(pill);
+  });
+}
+
+function renderChartTogglePills() {
+  const container = document.getElementById("chartTogglePills");
+  container.innerHTML = "";
+
+  const charts = [
+    {
+      id: "latencyChartContainer",
+      label: "Latency",
+      color: "rgb(99, 132, 255)",
+    },
+    { id: "jitterChartContainer", label: "Jitter", color: "rgb(255, 159, 64)" },
+  ];
+
+  charts.forEach((chart) => {
+    const pill = document.createElement("button");
+    pill.className = "legend-pill active";
+
+    const colorDot = document.createElement("span");
+    colorDot.className = "legend-pill-dot";
+    colorDot.style.backgroundColor = chart.color;
+
+    const label = document.createElement("span");
+    label.className = "legend-pill-label";
+    label.textContent = chart.label;
+
+    pill.appendChild(colorDot);
+    pill.appendChild(label);
+
+    pill.addEventListener("click", () => {
+      const chartContainer = document.getElementById(chart.id);
+      const isVisible = !chartContainer.classList.contains("hidden");
+      chartContainer.classList.toggle("hidden", isVisible);
+      pill.classList.toggle("active", !isVisible);
     });
 
     container.appendChild(pill);

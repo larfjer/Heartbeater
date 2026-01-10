@@ -3,6 +3,14 @@
  * Tab navigation and content switching
  */
 
+.app-bar .tabs {
+  display: flex;
+  flex: 1;
+  border-bottom: none;
+  background-color: transparent;
+  border-left: 1px solid var(--md-sys-color-outline);
+}
+
 .tabs {
   display: flex;
   border-bottom: 1px solid var(--md-sys-color-outline);
@@ -26,6 +34,17 @@
   gap: 0.5rem;
 }
 
+.app-bar .tab {
+  border-bottom: 2px solid transparent;
+  padding: var(--spacing-lg) var(--spacing-xl);
+}
+
+.app-bar .tab.active {
+  border-bottom-color: var(--md-sys-color-primary);
+  background-color: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-primary);
+}
+
 .tab:hover {
   background-color: var(--md-sys-color-surface-container);
   color: var(--md-sys-color-on-surface);
@@ -39,10 +58,12 @@
 
 .tab-content {
   display: none;
+  height: 100%;
 }
 
 .tab-content.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 .tabs-divider {
