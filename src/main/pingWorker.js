@@ -18,6 +18,13 @@ let consecutiveSuccesses = 0;
 let totalPings = 0;
 let totalFailures = 0;
 
+// Jitter detection state
+const MAX_RESPONSE_TIME_HISTORY = 20;
+const responseTimes = [];
+let coefficientOfVariation = 0;
+let cvThreshold = 0.3; // Default 30% variation
+let responseTimeThreshold = 100; // Default 100ms
+
 /**
  * Execute a single ping
  */
@@ -37,6 +44,55 @@ function executePing(ipAddress) {
       resolve({ success: !error, responseTime });
     });
   });
+}
+
+/**
+ * Calculate standard deviation of response times
+ */
+function calculateStdDev(values) {
+  if (values.length < 2) return 0;
+  const mean = values.reduce((a, b) => a + b, 0) / values.length;
+  const variance =
+    values.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / values.length;
+  return Math.sqrt(variance);
+}
+
+/**
+ * Calculate coefficient of variation
+ */
+function calculateCoefficientOfVariation(responseTimeValue) {
+  // Add response time to history
+  responseTimes.push(responseTimeValue);
+  if (responseTimes.length > MAX_RESPONSE_TIME_HISTORY) {
+    responseTimes.shift();
+  }
+
+  // Need at least 2 samples to calculate variation
+  if (responseTimes.length < 2) {
+    return 0;
+  }
+
+  const mean = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
+  const stdDev = calculateStdDev(responseTimes);
+
+  // Avoid division by zero
+  if (mean === 0) return 0;
+
+  return stdDev / mean;
+}
+
+/**
+ * Determine connection status based on CV and response time
+ */
+function determineConnectionStatus(responseTimeValue, previousStatus) {
+  const isPoorCV = coefficientOfVariation > cvThreshold;
+  const isPoorResponseTime = responseTimeValue > responseTimeThreshold;
+
+  if (isPoorCV || isPoorResponseTime) {
+    return "poor-connection";
+  }
+
+  return previousStatus;
 }
 
 /**
@@ -60,6 +116,7 @@ async function startPingLoop(ipAddress, intervalMs) {
   let result = await executePing(ipAddress);
   totalPings++;
   lastPingTime = Date.now();
+  coefficientOfVariation = calculateCoefficientOfVariation(result.responseTime);
 
   if (result.success) {
     console.log(`ping ok ${ipAddress} ${result.responseTime}ms`);
@@ -71,15 +128,21 @@ async function startPingLoop(ipAddress, intervalMs) {
         status: "available",
         ipAddress,
         responseTime: result.responseTime,
+        coefficientOfVariation,
         consecutiveSuccesses,
         totalPings,
         totalFailures,
       });
     } else {
+      const connectionStatus = determineConnectionStatus(
+        result.responseTime,
+        "responding",
+      );
       sendStatusSignal({
-        status: "responding",
+        status: connectionStatus,
         ipAddress,
         responseTime: result.responseTime,
+        coefficientOfVariation,
         consecutiveSuccesses,
         totalPings,
         totalFailures,
@@ -95,6 +158,7 @@ async function startPingLoop(ipAddress, intervalMs) {
       sendStatusSignal({
         status: "unavailable",
         ipAddress,
+        coefficientOfVariation,
         consecutiveFailures,
         totalPings,
         totalFailures,
@@ -103,6 +167,7 @@ async function startPingLoop(ipAddress, intervalMs) {
       sendStatusSignal({
         status: "unresponsive",
         ipAddress,
+        coefficientOfVariation,
         consecutiveFailures,
         totalPings,
         totalFailures,
@@ -117,6 +182,9 @@ async function startPingLoop(ipAddress, intervalMs) {
     result = await executePing(ipAddress);
     totalPings++;
     lastPingTime = Date.now();
+    coefficientOfVariation = calculateCoefficientOfVariation(
+      result.responseTime,
+    );
 
     if (result.success) {
       console.log(`ping ok ${ipAddress} ${result.responseTime}ms`);
@@ -130,16 +198,22 @@ async function startPingLoop(ipAddress, intervalMs) {
           status: "available",
           ipAddress,
           responseTime: result.responseTime,
+          coefficientOfVariation,
           consecutiveSuccesses,
           totalPings,
           totalFailures,
         });
       } else {
-        // Still responding normally
+        // Check for poor connection based on CV or response time
+        const connectionStatus = determineConnectionStatus(
+          result.responseTime,
+          "responding",
+        );
         sendStatusSignal({
-          status: "responding",
+          status: connectionStatus,
           ipAddress,
           responseTime: result.responseTime,
+          coefficientOfVariation,
           consecutiveSuccesses,
           totalPings,
           totalFailures,
@@ -157,6 +231,7 @@ async function startPingLoop(ipAddress, intervalMs) {
         sendStatusSignal({
           status: "unavailable",
           ipAddress,
+          coefficientOfVariation,
           consecutiveFailures,
           totalPings,
           totalFailures,
@@ -166,6 +241,7 @@ async function startPingLoop(ipAddress, intervalMs) {
         sendStatusSignal({
           status: "unresponsive",
           ipAddress,
+          coefficientOfVariation,
           consecutiveFailures,
           totalPings,
           totalFailures,
@@ -198,10 +274,16 @@ function stopPingLoop() {
  * Message handler
  */
 parentPort.on("message", async (message) => {
-  const { command, ipAddress, intervalMs } = message;
+  const { command, ipAddress, intervalMs, config } = message;
 
   switch (command) {
     case "start":
+      // Apply configuration if provided
+      if (config) {
+        cvThreshold = config.cvThreshold ?? cvThreshold;
+        responseTimeThreshold =
+          config.responseTimeThreshold ?? responseTimeThreshold;
+      }
       await startPingLoop(ipAddress, intervalMs);
       break;
     case "stop":
@@ -216,6 +298,9 @@ parentPort.on("message", async (message) => {
         consecutiveSuccesses,
         totalPings,
         totalFailures,
+        coefficientOfVariation,
+        cvThreshold,
+        responseTimeThreshold,
       });
       break;
     default:

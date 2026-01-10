@@ -23,8 +23,9 @@ class PingManager {
    * @param {string} ipAddress - IP address to ping
    * @param {number} intervalMs - Interval between pings in milliseconds
    * @param {BrowserWindow} mainWindow - Main window to send updates to
+   * @param {Object} config - Configuration object with cvThreshold and responseTimeThreshold
    */
-  startPing(deviceId, ipAddress, intervalMs, mainWindow) {
+  startPing(deviceId, ipAddress, intervalMs, mainWindow, config) {
     // Stop any existing worker for this device
     if (this.activeWorkers.has(deviceId)) {
       this.stopPing(deviceId);
@@ -98,11 +99,12 @@ class PingManager {
         lastStatusUpdate,
       });
 
-      // Start pinging in the worker
+      // Start pinging in the worker with configuration
       worker.postMessage({
         command: "start",
         ipAddress,
         intervalMs,
+        config,
       });
 
       log.info(
@@ -230,15 +232,24 @@ const pingManager = new PingManager();
  * @param {BrowserWindow} mainWindow - Main application window
  */
 export function registerPingHandlers(mainWindow) {
-  ipcMain.handle("ping:start", (event, deviceId, ipAddress, intervalMs) => {
-    try {
-      pingManager.startPing(deviceId, ipAddress, intervalMs, mainWindow);
-      return { success: true };
-    } catch (error) {
-      log.error(`Error starting ping for device ${deviceId}:`, error.message);
-      return { success: false, error: error.message };
-    }
-  });
+  ipcMain.handle(
+    "ping:start",
+    (event, deviceId, ipAddress, intervalMs, config) => {
+      try {
+        pingManager.startPing(
+          deviceId,
+          ipAddress,
+          intervalMs,
+          mainWindow,
+          config,
+        );
+        return { success: true };
+      } catch (error) {
+        log.error(`Error starting ping for device ${deviceId}:`, error.message);
+        return { success: false, error: error.message };
+      }
+    },
+  );
 
   ipcMain.handle("ping:stop", (event, deviceId) => {
     try {

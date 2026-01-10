@@ -27,8 +27,8 @@ export async function renderGroupConnectivity() {
       <div class="card">
         <div class="connectivity-controls">
           <div class="connectivity-control-group">
-            <label class="form-label">Select Group</label>
-            <select id="groupSelector" class="form-input">
+            <label class="form-label">Group:</label>
+            <select id="groupSelector" class="form-input-auto">
               <option value="">-- Select a group --</option>
     `;
 
@@ -40,18 +40,24 @@ export async function renderGroupConnectivity() {
             </select>
           </div>
           <div class="connectivity-control-group">
-            <label class="form-label">Ping Interval (ms)</label>
-            <input type="number" id="pingIntervalInput" class="form-input" 
+            <label class="form-label">Ping Interval (ms):</label>
+            <input type="number" id="pingIntervalInput" class="form-input-auto" 
                    placeholder="5000" min="100" max="60000" disabled />
           </div>
+          <div class="connectivity-control-group">
+            <label class="form-label">CV Threshold:</label>
+            <input type="number" id="cvThresholdInput" class="form-input-auto" 
+                   placeholder="0.3" min="0.1" max="1" step="0.05" disabled />
+          </div>
+          <div class="connectivity-control-group">
+            <label class="form-label">Response Time (ms):</label>
+            <input type="number" id="responseTimeThresholdInput" class="form-input-auto" 
+                   placeholder="100" min="1" max="1000" disabled />
+          </div>
           <div class="connectivity-control-buttons">
-            <button id="startAllPingBtn" class="md-button" disabled>
+            <button id="togglePingBtn" class="md-button" disabled>
               <span class="material-icons">play_arrow</span>
-              Start All Ping
-            </button>
-            <button id="stopAllPingBtn" class="md-button" disabled>
-              <span class="material-icons">stop</span>
-              Stop All Ping
+              <span class="button-text">Start All Ping</span>
             </button>
           </div>
         </div>
@@ -66,8 +72,11 @@ export async function renderGroupConnectivity() {
 
     const groupSelector = document.getElementById("groupSelector");
     const pingIntervalInput = document.getElementById("pingIntervalInput");
-    const startAllPingBtn = document.getElementById("startAllPingBtn");
-    const stopAllPingBtn = document.getElementById("stopAllPingBtn");
+    const cvThresholdInput = document.getElementById("cvThresholdInput");
+    const responseTimeThresholdInput = document.getElementById(
+      "responseTimeThresholdInput",
+    );
+    const togglePingBtn = document.getElementById("togglePingBtn");
     const devicesTableContainer = document.getElementById(
       "devicesTableContainer",
     );
@@ -75,31 +84,59 @@ export async function renderGroupConnectivity() {
     // Track ping state for each group
     const pingState = {};
 
+    // Helper function to update button state
+    function updateButtonState(isRunning) {
+      const icon = togglePingBtn.querySelector(".material-icons");
+      const text = togglePingBtn.querySelector(".button-text");
+
+      if (isRunning) {
+        icon.textContent = "stop";
+        text.textContent = "Stop All Ping";
+      } else {
+        icon.textContent = "play_arrow";
+        text.textContent = "Start All Ping";
+      }
+    }
+
     // Handle group selection
     groupSelector.addEventListener("change", async (e) => {
       const selectedGroupId = e.target.value;
 
       if (!selectedGroupId) {
         devicesTableContainer.innerHTML = "";
-        startAllPingBtn.disabled = true;
-        stopAllPingBtn.disabled = true;
+        togglePingBtn.disabled = true;
         pingIntervalInput.disabled = true;
+        cvThresholdInput.disabled = true;
+        responseTimeThresholdInput.disabled = true;
         pingIntervalInput.value = "";
+        cvThresholdInput.value = "";
+        responseTimeThresholdInput.value = "";
         return;
       }
 
       pingIntervalInput.disabled = false;
+      cvThresholdInput.disabled = false;
+      responseTimeThresholdInput.disabled = false;
 
-      // Load saved interval for this group or use default
+      // Load saved interval and thresholds for this group or use defaults
       const savedInterval = localStorage.getItem(
         `pingInterval_${selectedGroupId}`,
       );
-      pingIntervalInput.value = savedInterval || "5000";
+      const savedCvThreshold = localStorage.getItem(
+        `cvThreshold_${selectedGroupId}`,
+      );
+      const savedResponseTimeThreshold = localStorage.getItem(
+        `responseTimeThreshold_${selectedGroupId}`,
+      );
 
-      // Update button states based on current ping state
+      pingIntervalInput.value = savedInterval || "5000";
+      cvThresholdInput.value = savedCvThreshold || "0.3";
+      responseTimeThresholdInput.value = savedResponseTimeThreshold || "100";
+
+      // Update button state based on current ping state
       const isRunning = pingState[selectedGroupId] || false;
-      startAllPingBtn.disabled = isRunning;
-      stopAllPingBtn.disabled = !isRunning;
+      togglePingBtn.disabled = false;
+      updateButtonState(isRunning);
 
       // Get devices in selected group
       const devicesResult =
@@ -117,60 +154,84 @@ export async function renderGroupConnectivity() {
       }
     });
 
-    // Handle start all ping
-    startAllPingBtn.addEventListener("click", async () => {
+    // Handle CV threshold change
+    cvThresholdInput.addEventListener("change", (e) => {
       const selectedGroupId = groupSelector.value;
-      if (!selectedGroupId) return;
-
-      const pingInterval = parseInt(pingIntervalInput.value, 10) || 5000;
-
-      const devicesResult =
-        await window.api.storage.getDevicesInGroup(selectedGroupId);
-      const devices = devicesResult.success ? devicesResult.devices : [];
-
-      // Start ping for all devices in group
-      for (const device of devices) {
-        try {
-          await window.api.ping.start(device.id, device.ip, pingInterval);
-        } catch (error) {
-          console.error(`Error starting ping for ${device.id}:`, error);
-        }
+      if (selectedGroupId && e.target.value) {
+        localStorage.setItem(`cvThreshold_${selectedGroupId}`, e.target.value);
       }
-
-      // Update ping state and button states
-      pingState[selectedGroupId] = true;
-      startAllPingBtn.disabled = true;
-      stopAllPingBtn.disabled = false;
-
-      console.log("[Renderer] Started pinging all devices in group");
     });
 
-    // Handle stop all ping
-    stopAllPingBtn.addEventListener("click", async () => {
+    // Handle response time threshold change
+    responseTimeThresholdInput.addEventListener("change", (e) => {
+      const selectedGroupId = groupSelector.value;
+      if (selectedGroupId && e.target.value) {
+        localStorage.setItem(
+          `responseTimeThreshold_${selectedGroupId}`,
+          e.target.value,
+        );
+      }
+    });
+
+    // Handle toggle ping button
+    togglePingBtn.addEventListener("click", async () => {
       const selectedGroupId = groupSelector.value;
       if (!selectedGroupId) return;
+
+      const isRunning = pingState[selectedGroupId] || false;
 
       const devicesResult =
         await window.api.storage.getDevicesInGroup(selectedGroupId);
       const devices = devicesResult.success ? devicesResult.devices : [];
 
-      // Stop ping for all devices in group
-      for (const device of devices) {
-        try {
-          await window.api.ping.stop(device.id);
-          // Reset status back to grey and clear metrics
-          resetDeviceMetrics(device.id);
-        } catch (error) {
-          console.error(`Error stopping ping for ${device.id}:`, error);
+      if (isRunning) {
+        // Stop ping for all devices in group
+        for (const device of devices) {
+          try {
+            await window.api.ping.stop(device.id);
+            // Reset status back to grey and clear metrics
+            resetDeviceMetrics(device.id);
+          } catch (error) {
+            console.error(`Error stopping ping for ${device.id}:`, error);
+          }
         }
+
+        // Update ping state and button state
+        pingState[selectedGroupId] = false;
+        updateButtonState(false);
+
+        console.log("[Renderer] Stopped pinging all devices in group");
+      } else {
+        // Start ping for all devices in group
+        const pingInterval = parseInt(pingIntervalInput.value, 10) || 5000;
+        const cvThreshold = parseFloat(cvThresholdInput.value) || 0.3;
+        const responseTimeThreshold =
+          parseInt(responseTimeThresholdInput.value, 10) || 100;
+
+        const config = {
+          cvThreshold,
+          responseTimeThreshold,
+        };
+
+        for (const device of devices) {
+          try {
+            await window.api.ping.start(
+              device.id,
+              device.ip,
+              pingInterval,
+              config,
+            );
+          } catch (error) {
+            console.error(`Error starting ping for ${device.id}:`, error);
+          }
+        }
+
+        // Update ping state and button state
+        pingState[selectedGroupId] = true;
+        updateButtonState(true);
+
+        console.log("[Renderer] Started pinging all devices in group");
       }
-
-      // Update ping state and button states
-      pingState[selectedGroupId] = false;
-      startAllPingBtn.disabled = false;
-      stopAllPingBtn.disabled = true;
-
-      console.log("[Renderer] Stopped pinging all devices in group");
     });
   } catch (error) {
     console.error("[Renderer] Error rendering group connectivity:", error);
@@ -235,28 +296,37 @@ function renderDevicesTable(container, devices) {
   devices.forEach((device) => {
     window.api.ping.onStatusUpdated((data) => {
       if (data.deviceId === device.id) {
-        updateConnectivityIndicator(device.id, data.status, data.responseTime);
+        updateConnectivityIndicator(
+          device.id,
+          data.status,
+          data.responseTime,
+          data.coefficientOfVariation,
+        );
       }
     });
   });
 }
 
-function updateConnectivityIndicator(deviceId, status, responseTime) {
+function updateConnectivityIndicator(
+  deviceId,
+  status,
+  responseTime,
+  coefficientOfVariation,
+) {
   const indicator = document.querySelector(
     `.connectivity-indicator[data-device-id="${deviceId}"]`,
   );
   if (!indicator) return;
 
-  const statusColor = "var(--md-sys-color-outline)"; // Gray default
   let statusText = "Not Running";
   let dataStatus = "not-running";
 
   if (status === "available" || status === "responding") {
     statusText = "Connected";
     dataStatus = "connected";
-  } else if (status === "high-jitter") {
-    statusText = "High Jitter";
-    dataStatus = "high-jitter";
+  } else if (status === "poor-connection") {
+    statusText = "Poor Connection";
+    dataStatus = "poor-connection";
   } else if (status === "unavailable" || status === "unresponsive") {
     statusText = "Disconnected";
     dataStatus = "disconnected";
@@ -276,6 +346,19 @@ function updateConnectivityIndicator(deviceId, status, responseTime) {
       const responseTimeCell = row.querySelector(".device-response-time");
       if (responseTimeCell) {
         responseTimeCell.textContent = `${responseTime}ms`;
+      }
+    }
+  }
+
+  // Update coefficient of variation (jitter) if available
+  if (coefficientOfVariation !== undefined) {
+    const row = document.querySelector(
+      `.connectivity-row[data-device-id="${deviceId}"]`,
+    );
+    if (row) {
+      const jitterCell = row.querySelector(".device-jitter");
+      if (jitterCell) {
+        jitterCell.textContent = coefficientOfVariation.toFixed(3);
       }
     }
   }

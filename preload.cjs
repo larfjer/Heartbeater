@@ -44,8 +44,8 @@ const groupDeviceRelationApi = {
 };
 
 const pingApi = {
-  startPing: (deviceId, ipAddress, intervalMs) =>
-    ipcRenderer.invoke("ping:start", deviceId, ipAddress, intervalMs),
+  startPing: (deviceId, ipAddress, intervalMs, config) =>
+    ipcRenderer.invoke("ping:start", deviceId, ipAddress, intervalMs, config),
   stopPing: (deviceId) => ipcRenderer.invoke("ping:stop", deviceId),
   stopAllPings: () => ipcRenderer.invoke("ping:stopAll"),
   getStatus: (deviceId) => ipcRenderer.invoke("ping:getStatus", deviceId),
