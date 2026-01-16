@@ -58,6 +58,7 @@
 
 .connectivity-control-buttons {
   display: flex;
+  flex-direction: column;
   gap: 8px;
   margin-left: auto;
 }
@@ -196,4 +197,74 @@
 .logging-label {
   margin-left: 5px;
   font-size: 0.9em;
+}
+
+/* Material Design Checkbox Styling */
+.connectivity-control-buttons,
+.connectivity-control-buttons label[class*="Checkbox"] {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  color: var(--md-sys-color-on-surface);
+  font-size: var(--font-size-body);
+}
+
+.connectivity-control-buttons input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--md-sys-color-outline);
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.connectivity-control-buttons input[type="checkbox"]:hover:not(:disabled) {
+  border-color: var(--md-sys-color-primary);
+  background-color: rgba(103, 80, 164, 0.08);
+}
+
+.connectivity-control-buttons input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(103, 80, 164, 0.2);
+}
+
+.connectivity-control-buttons input[type="checkbox"]:checked {
+  background-color: var(--md-sys-color-primary);
+  border-color: var(--md-sys-color-primary);
+}
+
+.connectivity-control-buttons input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 4px;
+  height: 9px;
+  border: solid var(--md-sys-color-on-primary);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.connectivity-control-buttons input[type="checkbox"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--md-sys-color-outline);
+}
+
+.connectivity-control-buttons input[type="checkbox"]:disabled:checked {
+  background-color: var(--md-sys-color-outline);
+}
+
+/* Style the label text */
+.connectivity-control-buttons span[class*="Label"],
+.connectivity-control-buttons .checkbox-label {
+  color: var(--md-sys-color-on-surface);
+  font-size: var(--font-size-body);
+  font-family: var(--font-family-primary);
+  user-select: none;
 }

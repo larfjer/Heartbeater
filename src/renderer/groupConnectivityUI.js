@@ -54,18 +54,19 @@ export async function renderGroupConnectivity() {
             <input type="number" id="responseTimeThresholdInput" class="form-input-auto" 
                    placeholder="100" min="1" max="1000" disabled />
           </div>
-           <div class="connectivity-control-group">
-            <label class="form-label">Logging:</label>
-            <div class="logging-control">
-              <input type="checkbox" id="loggingEnabledInput" disabled />
-              <span class="logging-label">Enable</span>
-            </div>
-          </div>
-          <div class="connectivity-control-buttons">
-            <button id="togglePingBtn" class="md-button" disabled>
-              <span class="material-icons">play_arrow</span>
-              <span class="button-text">Start All Ping</span>
-            </button>
+            <div class="connectivity-control-buttons"=>
+              <div class="connectivity-control-buttons">
+                <button id="togglePingBtn" class="md-button" disabled>
+                <span class="material-icons">play_arrow</span>
+                <span class="button-text">Start All Ping</span>
+                </button>
+              </div>
+              <div class="connectivity-control-group">
+                <div class="logging-control">
+                  <input type="checkbox" class=connectivity-control-button id="loggingEnabledInput" disabled />
+                  <span class="logging-label">Logging enabled</span>
+                </div>
+              </div>
           </div>
         </div>
       </div>
