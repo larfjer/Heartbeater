@@ -1,5 +1,5 @@
 // Mock native modules and loggers before importing the module under test
-const globalWorkers = (global.__WORKERS = global.__WORKERS || []);
+global.__WORKERS = global.__WORKERS || [];
 
 jest.mock("worker_threads", () => ({
   Worker: class {

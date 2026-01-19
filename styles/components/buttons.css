@@ -260,3 +260,75 @@
 .add-device-manually-btn:active {
   transform: scale(0.98);
 }
+
+/* Button Variants for React Components */
+.md-button-outlined {
+  background-color: transparent;
+  color: var(--md-sys-color-primary);
+  border: 1px solid var(--md-sys-color-outline);
+  box-shadow: none;
+}
+
+.md-button-outlined:hover {
+  background-color: rgba(103, 80, 164, 0.08);
+  box-shadow: none;
+}
+
+.md-button-text {
+  background-color: transparent;
+  color: var(--md-sys-color-primary);
+  box-shadow: none;
+  padding: 0 var(--spacing-md);
+}
+
+.md-button-text:hover {
+  background-color: rgba(103, 80, 164, 0.08);
+  box-shadow: none;
+}
+
+.md-button-tonal {
+  background-color: var(--md-sys-color-secondary);
+  color: var(--md-sys-color-on-secondary-container);
+  box-shadow: none;
+}
+
+.md-button-tonal:hover {
+  filter: brightness(1.05);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Button Sizes */
+.md-button-small {
+  height: 32px;
+  padding: 0 var(--spacing-md);
+  font-size: var(--font-size-small);
+}
+
+.md-button-small .material-icons {
+  font-size: 16px;
+}
+
+.md-button-large {
+  height: 48px;
+  padding: 0 var(--spacing-2xl);
+  font-size: 16px;
+}
+
+.md-button-large .material-icons {
+  font-size: 20px;
+}
+
+/* Full Width */
+.button-full-width {
+  width: 100%;
+}
+
+/* Loading State */
+.md-button-loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.md-button-spinner {
+  animation: spin 1s linear infinite;
+}

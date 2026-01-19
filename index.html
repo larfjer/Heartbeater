@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Heartbeater</title>
@@ -16,7 +16,7 @@
     />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 
-    <!-- Styles - Theme & Design Tokens -->
+    <!-- Styles - Theme & Design Tokens (MD3) -->
     <link rel="stylesheet" href="styles/theme.css" />
 
     <!-- Styles - Global Layout -->
@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="styles/components/badges.css" />
     <link rel="stylesheet" href="styles/components/modals.css" />
     <link rel="stylesheet" href="styles/components/groupsUI.css" />
+    <link rel="stylesheet" href="styles/components/multiselect.css" />
 
     <!-- Styles - Features -->
     <link rel="stylesheet" href="styles/features/tabs.css" />
@@ -38,186 +39,7 @@
     <link rel="stylesheet" href="styles/features/history.css" />
   </head>
   <body>
-    <header class="app-bar">
-      <div class="app-bar-brand">
-        <span class="material-icons">monitor_heart</span>
-        <h1>Heartbeater</h1>
-      </div>
-      <nav class="tabs">
-        <div class="tab active" data-tab="group-connectivity">
-          <span class="material-icons tab-icon">hub</span>
-          Group Connectivity
-        </div>
-        <div class="tab" data-tab="history">
-          <span class="material-icons tab-icon">history</span>
-          History
-        </div>
-        <div class="tab" data-tab="device-scan">
-          <span class="material-icons tab-icon">radar</span>
-          Device Scan
-        </div>
-        <div class="tab" data-tab="device-group">
-          <span class="material-icons tab-icon">group</span>
-          Device Groups
-        </div>
-      </nav>
-    </header>
-
-    <main class="container">
-      <!-- Group Connectivity Tab -->
-      <div id="group-connectivity" class="tab-content active">
-        <div id="connectivity-container"></div>
-      </div>
-
-      <!-- History Tab -->
-      <div id="history" class="tab-content">
-        <div id="history-container"></div>
-      </div>
-
-      <!-- Device Scan Tab -->
-      <div id="device-scan" class="tab-content">
-        <div class="card">
-          <h2 class="card-title">Network Scanner</h2>
-          <p class="card-subtitle">Discover all devices connected to your local network</p>
-
-          <button id="scanBtn" class="md-button">
-            <span class="material-icons">radar</span>
-            Scan Network
-          </button>
-
-          <div id="status"></div>
-        </div>
-
-        <div id="results"></div>
-      </div>
-
-      <!-- Device Group Tab -->
-      <div id="device-group" class="tab-content">
-        <div class="card">
-          <h2 class="card-title">Device Groups</h2>
-          <p class="card-subtitle">Organize and manage device groups</p>
-        </div>
-
-        <div id="groups-container"></div>
-      </div>
-    </main>
-
-    <!-- Add to Group Modal -->
-    <div id="addToGroupModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">Add Device to Group</div>
-        <div class="modal-body">
-          <div class="group-list" id="groupList"></div>
-          <div class="modal-divider">
-            <details>
-              <summary class="details-summary">Create new group</summary>
-              <div class="details-content">
-                <div class="form-group">
-                  <label class="form-label">Group Name</label>
-                  <input
-                    type="text"
-                    id="newGroupName"
-                    class="form-input"
-                    placeholder="Enter group name"
-                  />
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Description (optional)</label>
-                  <input
-                    type="text"
-                    id="newGroupDescription"
-                    class="form-input"
-                    placeholder="Enter description"
-                  />
-                </div>
-                <button
-                  id="createNewGroupBtn"
-                  class="modal-button modal-button-primary button-full-width"
-                >
-                  Create Group
-                </button>
-              </div>
-            </details>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button id="addToGroupCancel" class="modal-button modal-button-secondary">Cancel</button>
-          <button id="addToGroupConfirm" class="modal-button modal-button-primary">Save</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Add Device Manually Modal -->
-    <div id="addDeviceManuallyModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">Add Device Manually</div>
-        <div class="modal-body">
-          <div class="form-group form-group-flex">
-            <label class="form-label form-label-flex">Device Name *</label>
-            <input
-              type="text"
-              id="manualDeviceName"
-              class="form-input form-input-flex"
-              placeholder="e.g., My Device"
-            />
-          </div>
-
-          <div class="form-group form-group-flex">
-            <label class="form-label form-label-flex">IP Address *</label>
-            <input
-              type="text"
-              id="manualDeviceIp"
-              class="form-input form-input-flex"
-              placeholder="e.g., 192.168.1.100"
-            />
-          </div>
-
-          <div class="form-group form-group-flex">
-            <label class="form-label form-label-flex">MAC Address</label>
-            <input
-              type="text"
-              id="manualDeviceMac"
-              class="form-input form-input-flex"
-              placeholder="e.g., 00:11:22:33:44:55"
-            />
-          </div>
-
-          <div class="form-group form-group-flex">
-            <label class="form-label form-label-flex">Manufacturer</label>
-            <input
-              type="text"
-              id="manualDeviceManufacturer"
-              class="form-input form-input-flex"
-              placeholder="e.g., Apple Inc."
-            />
-          </div>
-
-          <div class="form-group form-group-flex">
-            <label class="form-label form-label-flex">Friendly Name</label>
-            <input
-              type="text"
-              id="manualDeviceFriendlyName"
-              class="form-input form-input-flex"
-              placeholder="e.g., Living Room TV"
-            />
-          </div>
-
-          <div class="form-group form-group-flex-col">
-            <label class="form-label">Select Groups *</label>
-            <div class="group-list" id="manualDeviceGroupList"></div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button id="addDeviceManuallyCancel" class="modal-button modal-button-secondary">
-            Cancel
-          </button>
-          <button id="addDeviceManuallyConfirm" class="modal-button modal-button-primary">
-            Save Device
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <script src="renderer.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/renderer/main.tsx"></script>
   </body>
 </html>

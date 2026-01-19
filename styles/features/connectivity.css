@@ -6,6 +6,28 @@
   gap: 16px;
   margin-bottom: 16px;
   align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.connectivity-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-left: auto;
+}
+
+.connectivity-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+}
+
+.connectivity-header h3 {
+  margin: 0;
+}
+
+.connectivity-header .badge {
+  margin-left: var(--spacing-sm);
 }
 
 .connectivity-control-group {

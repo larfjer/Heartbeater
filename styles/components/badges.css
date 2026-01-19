@@ -3,6 +3,66 @@
  * Manufacturer, status, and indicator badges
  */
 
+/* Generic badge styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-label);
+  font-weight: 500;
+  line-height: 1;
+  background-color: var(--md-sys-color-surface-variant);
+  color: var(--md-sys-color-on-surface-variant);
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.badge-small {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.badge-icon {
+  font-size: 16px !important;
+}
+
+/* Badge variants */
+.badge-success {
+  background-color: rgba(76, 175, 80, 0.15);
+  color: rgb(27, 94, 32);
+}
+
+.badge-warning {
+  background-color: rgba(255, 152, 0, 0.15);
+  color: rgb(230, 81, 0);
+}
+
+.badge-error {
+  background-color: rgba(244, 67, 54, 0.15);
+  color: rgb(183, 28, 28);
+}
+
+.badge-info {
+  background-color: rgba(33, 150, 243, 0.15);
+  color: rgb(13, 71, 161);
+}
+
+.badge-neutral {
+  background-color: var(--md-sys-color-surface-variant);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Subtle variant for non-interactive informational badges */
+.badge-subtle {
+  background-color: rgba(158, 158, 158, 0.12);
+  color: var(--md-sys-color-on-surface-variant);
+  border: 1px solid rgba(158, 158, 158, 0.2);
+  font-weight: 500;
+  cursor: default;
+}
+
 .manufacturer-badge {
   display: inline-block;
   background-color: var(--md-sys-color-secondary);

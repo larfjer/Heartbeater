@@ -9,7 +9,38 @@
   flex: 1;
   min-height: 0;
   gap: var(--spacing-md);
-  overflow: hidden;
+}
+
+/* History Controls */
+.history-controls {
+  display: flex;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+}
+
+.history-header h3 {
+  margin: 0;
+}
+
+.history-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--font-size-small);
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
 }
 
 .history-pills-section {

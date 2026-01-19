@@ -26,3 +26,43 @@
     transform: rotate(360deg);
   }
 }
+
+/* Scan Controls */
+.scan-controls {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.scan-error {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: #f44336;
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background-color: rgba(244, 67, 54, 0.1);
+  border-radius: var(--radius-md);
+}
+
+.scan-error .material-icons {
+  font-size: 20px;
+}
+
+/* Scan Results */
+.scan-results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+}
+
+.scan-results-header h3 {
+  margin: 0;
+}
+
+.scan-results-table-container {
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: auto;
+}

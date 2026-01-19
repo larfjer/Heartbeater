@@ -9,7 +9,7 @@ export function registerDeviceStorageHandlers(storage) {
   ipcMain.handle("storage:addDevice", (event, device) => {
     try {
       const result = storage.addDevice(device);
-      return { success: true, device: result };
+      return { success: true, data: { id: result.id } };
     } catch (error) {
       log.error("Error adding device:", error.message);
       return { success: false, error: error.message };

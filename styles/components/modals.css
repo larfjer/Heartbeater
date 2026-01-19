@@ -16,7 +16,8 @@
   justify-content: center;
 }
 
-.modal.show {
+.modal.show,
+.modal-open {
   display: flex;
 }
 
@@ -91,4 +92,34 @@
 .group-device-count {
   font-size: var(--font-size-label);
   color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Modal Sizes */
+.modal-small {
+  max-width: 350px;
+}
+
+.modal-large {
+  max-width: 700px;
+}
+
+/* Modal Divider */
+.modal-divider {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--md-sys-color-outline);
+}
+
+.details-summary {
+  cursor: pointer;
+  color: var(--md-sys-color-primary);
+  font-weight: 500;
+  padding: var(--spacing-sm) 0;
+}
+
+.details-content {
+  padding-top: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }

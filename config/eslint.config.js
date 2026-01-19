@@ -1,12 +1,14 @@
 import js from "@eslint/js";
 import prettier from "eslint-plugin-prettier/recommended";
 import importPlugin from "eslint-plugin-import";
+import tseslint from "typescript-eslint";
 
 export default [
   {
     ignores: ["node_modules/**", "dist/**", "out/**", ".vscode/**", "*.old.js"],
   },
   js.configs.recommended,
+  ...tseslint.configs.recommended,
   prettier,
   {
     languageOptions: {
@@ -24,7 +26,8 @@ export default [
     },
     plugins: { import: importPlugin },
     rules: {
-      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "no-console": "off",
       "prefer-const": "warn",
     },
@@ -55,6 +58,12 @@ export default [
         expect: "readonly",
         global: "writable",
       },
+    },
+  },
+  {
+    files: ["**/*.cjs", "**/*.test.js", "src/preload/**/*.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
     },
   },
 ];
